@@ -1,0 +1,232 @@
+<!-- Main Header -->
+<header class="header-container">
+ <!-- Top Bar -->
+<div class="top-bar bg-gray-100 py-2">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-end items-center text-sm">
+      <div class="flex items-center space-x-4">
+        <a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">🌍 Français</a>
+        <a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">💡 Aide</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Main Navigation -->
+  <mat-toolbar class="main-toolbar bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <div class="flex items-center">
+          <a routerLink="/" class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-400 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white text-xl">storefront</mat-icon>
+            </div>
+            <span class="text-2xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+              Marketplace
+            </span>
+          </a>
+        </div>
+
+        <!-- Search Bar (Desktop) -->
+        <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+          <div class="relative w-full">
+            <mat-form-field appearance="outline" class="search-field w-full">
+              <input 
+                matInput 
+                placeholder="Rechercher des articles uniques..." 
+                [(ngModel)]="searchQuery"
+                (keyup.enter)="onSearch()"
+                class="pr-12">
+              <mat-icon matSuffix class="cursor-pointer text-gray-400 hover:text-orange-500 transition-colors" (click)="onSearch()">
+                search
+              </mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center space-x-4">
+          
+          <!-- Categories Dropdown -->
+          <button mat-button [matMenuTriggerFor]="categoriesMenu" class="nav-button">
+            <mat-icon>category</mat-icon>
+            <span class="ml-1">Catégories</span>
+          </button>
+
+          <!-- Favorites -->
+          <button mat-icon-button class="nav-icon-button" title="Favoris">
+            <mat-icon>favorite_border</mat-icon>
+          </button>
+
+          <!-- Cart -->
+          <button mat-icon-button class="nav-icon-button relative" (click)="onCart()" title="Panier">
+            <mat-icon [matBadge]="cartItemsCount" matBadgeColor="accent" matBadgeSize="small" aria-hidden="false">
+              shopping_cart
+            </mat-icon>
+          </button>
+
+          <!-- User Menu -->
+          <div *ngIf="!isLoggedIn">
+            <button mat-button (click)="onLogin()" class="text-gray-700 hover:text-orange-600">
+              Se connecter
+            </button>
+            <button mat-raised-button color="primary" (click)="onRegister()" class="ml-2 bg-orange-500 hover:bg-orange-600">
+              S'inscrire
+            </button>
+          </div>
+
+          <div *ngIf="isLoggedIn">
+            <button mat-button [matMenuTriggerFor]="userMenu" class="flex items-center space-x-2">
+              <div class="w-8 h-8 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-semibold">{{ username.charAt(0) }}</span>
+              </div>
+              <span class="text-gray-700">{{ username }}</span>
+              <mat-icon class="text-gray-400">keyboard_arrow_down</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+          <button mat-icon-button [matMenuTriggerFor]="mobileMenu">
+            <mat-icon>menu</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Categories Bar (Desktop) -->
+  <div class="hidden lg:block bg-gray-50 border-t">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-center space-x-8 py-3">
+        <button 
+          *ngFor="let category of categories.slice(0, 6)" 
+          mat-button 
+          class="category-link"
+          (click)="onCategoryClick(category)">
+          <mat-icon class="mr-2">{{ category.icon }}</mat-icon>
+          {{ category.name }}
+        </button>
+        <button mat-button [matMenuTriggerFor]="moreCategoriesMenu" class="category-link">
+          <mat-icon class="mr-2">more_horiz</mat-icon>
+          Plus
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Categories Dropdown Menu -->
+<mat-menu #categoriesMenu="matMenu" class="categories-menu">
+  <div class="grid grid-cols-2 gap-2 p-4 min-w-96">
+    <button 
+      *ngFor="let category of categories" 
+      mat-menu-item 
+      (click)="onCategoryClick(category)"
+      class="category-menu-item">
+      <mat-icon class="mr-3 text-orange-500">{{ category.icon }}</mat-icon>
+      <span>{{ category.name }}</span>
+    </button>
+  </div>
+</mat-menu>
+
+<!-- More Categories Menu -->
+<mat-menu #moreCategoriesMenu="matMenu">
+  <button 
+    *ngFor="let category of categories.slice(6)" 
+    mat-menu-item 
+    (click)="onCategoryClick(category)">
+    <mat-icon class="mr-3">{{ category.icon }}</mat-icon>
+    <span>{{ category.name }}</span>
+  </button>
+</mat-menu>
+
+<!-- User Menu -->
+<mat-menu #userMenu="matMenu">
+  <button mat-menu-item (click)="onProfile()">
+    <mat-icon class="mr-3">person</mat-icon>
+    <span>Mon profil</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon class="mr-3">shopping_bag</mat-icon>
+    <span>Mes commandes</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon class="mr-3">favorite</mat-icon>
+    <span>Mes favoris</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon class="mr-3">store</mat-icon>
+    <span>Ma boutique</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item>
+    <mat-icon class="mr-3">settings</mat-icon>
+    <span>Paramètres</span>
+  </button>
+  <button mat-menu-item (click)="onLogout()">
+    <mat-icon class="mr-3">logout</mat-icon>
+    <span>Se déconnecter</span>
+  </button>
+</mat-menu>
+
+<!-- Mobile Menu -->
+<mat-menu #mobileMenu="matMenu" class="mobile-menu">
+  <div class="p-4 min-w-80">
+    <!-- Mobile Search -->
+    <div class="mb-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <input 
+          matInput 
+          placeholder="Rechercher..." 
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()">
+        <mat-icon matSuffix (click)="onSearch()">search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- Mobile Categories -->
+    <div class="mb-4">
+      <h3 class="font-semibold text-gray-900 mb-2">Catégories</h3>
+      <div class="space-y-1">
+        <button 
+          *ngFor="let category of categories" 
+          mat-menu-item 
+          (click)="onCategoryClick(category)"
+          class="w-full justify-start">
+          <mat-icon class="mr-3">{{ category.icon }}</mat-icon>
+          <span>{{ category.name }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile User Actions -->
+    <mat-divider class="my-4"></mat-divider>
+    <div *ngIf="!isLoggedIn" class="space-y-2">
+      <button mat-raised-button color="primary" (click)="onLogin()" class="w-full">
+        Se connecter
+      </button>
+      <button mat-stroked-button (click)="onRegister()" class="w-full">
+        S'inscrire
+      </button>
+    </div>
+
+    <div *ngIf="isLoggedIn" class="space-y-1">
+      <button mat-menu-item (click)="onProfile()" class="w-full justify-start">
+        <mat-icon class="mr-3">person</mat-icon>
+        <span>Mon profil</span>
+      </button>
+      <button mat-menu-item class="w-full justify-start">
+        <mat-icon class="mr-3">shopping_bag</mat-icon>
+        <span>Mes commandes</span>
+      </button>
+      <button mat-menu-item (click)="onLogout()" class="w-full justify-start">
+        <mat-icon class="mr-3">logout</mat-icon>
+        <span>Se déconnecter</span>
+      </button>
+    </div>
+  </div>
+</mat-menu>

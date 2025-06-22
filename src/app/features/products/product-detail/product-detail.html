@@ -1,0 +1,385 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Breadcrumb -->
+  <div class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex py-4 text-sm">
+        <a routerLink="/" class="text-gray-500 hover:text-orange-600 transition-colors">Accueil</a>
+        <mat-icon class="mx-2 text-gray-400">chevron_right</mat-icon>
+        <a href="#" class="text-gray-500 hover:text-orange-600 transition-colors">{{ product.category }}</a>
+        <mat-icon class="mx-2 text-gray-400">chevron_right</mat-icon>
+        <span class="text-gray-900 truncate">{{ product.name }}</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Product Detail Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Left Column - Images -->
+      <div class="space-y-4">
+        <!-- Main Image -->
+        <div class="aspect-square bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+            <mat-icon class="text-gray-400 text-8xl">image</mat-icon>
+            
+            <!-- Favorite Button -->
+            <button 
+              mat-icon-button 
+              class="absolute top-4 right-4 bg-white bg-opacity-80 hover:bg-opacity-100 transition-all"
+              (click)="toggleFavorite()">
+              <mat-icon [class]="isFavorite ? 'text-red-500' : 'text-gray-400'">
+                {{ isFavorite ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+            </button>
+
+            <!-- Discount Badge -->
+            <div *ngIf="product.originalPrice > product.price" 
+                 class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
+              -{{ getSavingsPercentage() }}%
+            </div>
+          </div>
+        </div>
+
+        <!-- Thumbnail Images -->
+        <div class="grid grid-cols-4 gap-2">
+          <div *ngFor="let image of product.images; let i = index" 
+               class="aspect-square bg-gray-200 rounded-lg cursor-pointer border-2 transition-colors"
+               [class.border-orange-500]="selectedImageIndex === i"
+               [class.border-gray-300]="selectedImageIndex !== i"
+               (click)="selectImage(i)">
+            <div class="w-full h-full flex items-center justify-center">
+              <mat-icon class="text-gray-400">image</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Product Info -->
+      <div class="space-y-6">
+        
+        <!-- Product Title & Rating -->
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+          <div class="flex items-center space-x-4 mb-4">
+            <div class="flex items-center">
+              <div class="flex">
+                <mat-icon *ngFor="let filled of getStarArray(product.rating)" 
+                         class="text-yellow-400 text-lg">
+                  {{ filled ? 'star' : 'star_border' }}
+                </mat-icon>
+              </div>
+              <span class="ml-2 text-sm text-gray-600">{{ product.rating }} ({{ product.reviewCount }} avis)</span>
+            </div>
+            <span class="text-sm text-gray-500">•</span>
+            <span class="text-sm" [class]="getStockStatus().color">{{ getStockStatus().text }}</span>
+          </div>
+        </div>
+
+        <!-- Price -->
+        <div class="flex items-center space-x-3">
+          <span class="text-3xl font-bold text-orange-600">{{ product.price }}€</span>
+          <span *ngIf="product.originalPrice > product.price" 
+                class="text-xl text-gray-500 line-through">{{ product.originalPrice }}€</span>
+          <span *ngIf="product.originalPrice > product.price" 
+                class="bg-red-100 text-red-800 text-sm px-2 py-1 rounded-full font-semibold">
+            Économisez {{ (product.originalPrice - product.price).toFixed(2) }}€
+          </span>
+        </div>
+
+        <!-- Features -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div *ngFor="let feature of product.features" class="flex items-center">
+              <mat-icon class="text-green-600 text-sm mr-2">check_circle</mat-icon>
+              <span class="text-sm text-green-800">{{ feature }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+            <div class="flex items-center space-x-3">
+              <button mat-icon-button 
+                      [disabled]="selectedQuantity <= 1"
+                      (click)="decrementQuantity()"
+                      class="border border-gray-300">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="px-4 py-2 border border-gray-300 rounded-md text-center min-w-[60px]">
+                {{ selectedQuantity }}
+              </span>
+              <button mat-icon-button 
+                      [disabled]="selectedQuantity >= product.stock"
+                      (click)="incrementQuantity()"
+                      class="border border-gray-300">
+                <mat-icon>add</mat-icon>
+              </button>
+              <span class="text-sm text-gray-500 ml-4">{{ product.stock }} disponible(s)</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button mat-raised-button 
+                    color="primary" 
+                    class="flex-1 bg-orange-500 hover:bg-orange-600 py-3"
+                    [disabled]="product.stock === 0"
+                    (click)="addToCart()">
+              <mat-icon class="mr-2">shopping_cart</mat-icon>
+              Ajouter au panier
+            </button>
+            <button mat-raised-button 
+                    class="flex-1 bg-gray-900 text-white hover:bg-gray-800 py-3"
+                    [disabled]="product.stock === 0"
+                    (click)="buyNow()">
+              Acheter maintenant
+            </button>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="flex flex-wrap gap-2">
+          <mat-chip *ngFor="let tag of product.tags" class="bg-gray-100 text-gray-700">
+            {{ tag }}
+          </mat-chip>
+        </div>
+
+        <!-- Seller Info Card -->
+        <mat-card class="seller-card">
+          <mat-card-content class="p-6">
+            <div class="flex items-start space-x-4">
+              <div class="relative">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xl font-bold">{{ product.seller.avatar }}</span>
+                </div>
+                <div *ngIf="product.seller.isVerified" 
+                     class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <mat-icon class="text-white text-sm">verified</mat-icon>
+                </div>
+              </div>
+              
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ product.seller.name }}</h3>
+                  <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-semibold">
+                    {{ product.seller.grade }}
+                  </span>
+                </div>
+                
+                <div class="flex items-center mt-1 space-x-4 text-sm text-gray-600">
+                  <div class="flex items-center">
+                    <mat-icon class="text-yellow-400 text-sm mr-1">star</mat-icon>
+                    <span>{{ product.seller.rating }} • {{ product.seller.totalSales }} ventes</span>
+                  </div>
+                  <span>•</span>
+                  <span>Membre depuis {{ product.seller.memberSince }}</span>
+                </div>
+                
+                <div class="flex items-center mt-2 space-x-4 text-sm text-gray-600">
+                  <span>📍 {{ product.seller.location }}</span>
+                  <span>⚡ Répond en {{ product.seller.responseTime }}</span>
+                </div>
+                
+                <div class="flex space-x-3 mt-4">
+                  <button mat-stroked-button (click)="contactSeller()" class="flex-1">
+                    <mat-icon class="mr-2">message</mat-icon>
+                    Contacter
+                  </button>
+                  <button mat-stroked-button (click)="visitShop()" class="flex-1">
+                    <mat-icon class="mr-2">store</mat-icon>
+                    Voir la boutique
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <div class="mt-12">
+      <mat-tab-group class="product-tabs">
+        <!-- Description Tab -->
+        <mat-tab label="Description">
+          <div class="py-6">
+            <div class="prose max-w-none">
+              <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+              
+              <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-4">Spécifications</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let spec of product.specifications | keyvalue" 
+                     class="flex justify-between py-2 border-b border-gray-200">
+                  <span class="font-medium text-gray-600">{{ spec.key }}</span>
+                  <span class="text-gray-900">{{ spec.value }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Reviews Tab -->
+        <mat-tab label="Avis ({{ product.reviewCount }})">
+          <div class="py-6">
+            <!-- Reviews Summary -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="text-center">
+                  <div class="text-4xl font-bold text-gray-900 mb-2">{{ product.rating }}</div>
+                  <div class="flex justify-center mb-2">
+                    <mat-icon *ngFor="let filled of getStarArray(product.rating)" 
+                             class="text-yellow-400">
+                      {{ filled ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  </div>
+                  <div class="text-gray-600">Basé sur {{ product.reviewCount }} avis</div>
+                </div>
+                <div class="space-y-2">
+                  <div *ngFor="let star of [5,4,3,2,1]" class="flex items-center">
+                    <span class="text-sm text-gray-600 w-8">{{ star }}</span>
+                    <mat-icon class="text-yellow-400 text-sm mx-1">star</mat-icon>
+                    <div class="flex-1 bg-gray-200 rounded-full h-2 mx-2">
+                      <div class="bg-yellow-400 h-2 rounded-full" [style.width.%]="star === 5 ? 80 : star === 4 ? 15 : 5"></div>
+                    </div>
+                    <span class="text-sm text-gray-600 w-8">{{ star === 5 ? '80%' : star === 4 ? '15%' : '5%' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Individual Reviews -->
+            <div class="space-y-6">
+              <div *ngFor="let review of reviews" class="border-b border-gray-200 pb-6 last:border-b-0">
+                <div class="flex items-start space-x-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-300 to-purple-300 rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold">{{ review.avatar }}</span>
+                  </div>
+                  
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 class="font-semibold text-gray-900">{{ review.author }}</h4>
+                        <div class="flex items-center mt-1">
+                          <div class="flex">
+                            <mat-icon *ngFor="let filled of getStarArray(review.rating)" 
+                                     class="text-yellow-400 text-sm">
+                              {{ filled ? 'star' : 'star_border' }}
+                            </mat-icon>
+                          </div>
+                          <span class="ml-2 text-sm text-gray-500">{{ review.date }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <h5 class="font-medium text-gray-900 mb-2">{{ review.title }}</h5>
+                    <p class="text-gray-700 mb-3">{{ review.content }}</p>
+                    
+                    <!-- Review Images -->
+                    <div *ngIf="review.images.length > 0" class="flex space-x-2 mb-3">
+                      <div *ngFor="let image of review.images" 
+                           class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <mat-icon class="text-gray-400">image</mat-icon>
+                      </div>
+                    </div>
+                    
+                    <!-- Helpful Button -->
+                    <button mat-button class="text-gray-600 hover:text-orange-600" 
+                            (click)="reportReviewHelpful(review.id)">
+                      <mat-icon class="mr-1 text-sm">thumb_up</mat-icon>
+                      Utile ({{ review.helpful }})
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Shipping Tab -->
+        <mat-tab label="Livraison & Retours">
+          <div class="py-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Livraison</h3>
+                <div class="space-y-3">
+                  <div class="flex items-start">
+                    <mat-icon class="text-green-600 mr-3 mt-1">local_shipping</mat-icon>
+                    <div>
+                      <div class="font-medium">Livraison gratuite</div>
+                      <div class="text-sm text-gray-600">Pour les commandes de plus de 50€</div>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <mat-icon class="text-blue-600 mr-3 mt-1">schedule</mat-icon>
+                    <div>
+                      <div class="font-medium">2-3 jours ouvrés</div>
+                      <div class="text-sm text-gray-600">Livraison standard en France</div>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <mat-icon class="text-purple-600 mr-3 mt-1">card_giftcard</mat-icon>
+                    <div>
+                      <div class="font-medium">Emballage cadeau</div>
+                      <div class="text-sm text-gray-600">Inclus gratuitement</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Retours</h3>
+                <div class="space-y-3">
+                  <div class="flex items-start">
+                    <mat-icon class="text-orange-600 mr-3 mt-1">assignment_return</mat-icon>
+                    <div>
+                      <div class="font-medium">Retours gratuits</div>
+                      <div class="text-sm text-gray-600">Sous 14 jours</div>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <mat-icon class="text-green-600 mr-3 mt-1">verified</mat-icon>
+                    <div>
+                      <div class="font-medium">Garantie qualité</div>
+                      <div class="text-sm text-gray-600">2 ans sur tous nos bijoux</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+
+    <!-- Related Products -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Produits similaires</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let relatedProduct of relatedProducts" 
+             class="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+          <mat-card class="overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <div class="aspect-square bg-gray-200 flex items-center justify-center">
+              <mat-icon class="text-gray-400 text-4xl">image</mat-icon>
+            </div>
+            <mat-card-content class="p-4">
+              <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ relatedProduct.name }}</h3>
+              <p class="text-sm text-gray-600 mb-2">Par {{ relatedProduct.seller }}</p>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-bold text-orange-600">{{ relatedProduct.price }}€</span>
+                <div class="flex items-center text-sm text-gray-500">
+                  <mat-icon class="text-yellow-400 text-sm mr-1">star</mat-icon>
+                  {{ relatedProduct.rating }}
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
