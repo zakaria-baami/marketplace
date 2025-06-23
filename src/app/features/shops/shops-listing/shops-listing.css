@@ -1,0 +1,48 @@
+/* Shops Listing Styles */
+.shop-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.shop-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+}
+
+.shop-card .cover-image {
+  transition: all 0.3s ease;
+}
+
+.shop-card:hover .cover-image {
+  transform: scale(1.05);
+}
+
+.shop-card .avatar {
+  transition: transform 0.3s ease;
+}
+
+.shop-card:hover .avatar {
+  transform: scale(1.1);
+}
+
+.shop-card .visit-button {
+  transition: all 0.2s ease;
+}
+
+.shop-card:hover .visit-button {
+  background-color: #f97316;
+  color: white;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .mat-mdc-form-field-flex {
+  align-items: center;
+}
+
+::ng-deep .mat-mdc-select-arrow {
+  color: #6b7280;
+} 

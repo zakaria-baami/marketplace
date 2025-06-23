@@ -1,0 +1,154 @@
+<app-header></app-header>
+
+<div *ngIf="!loading; else loadingState" class="min-h-screen bg-gray-50">
+  <!-- Shop Header -->
+  <div class="shop-header">
+    <div class="cover-image h-64 bg-gray-300 flex items-center justify-center">
+      <mat-icon class="text-gray-500 text-8xl">storefront</mat-icon>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-end -mt-16">
+        <!-- Avatar -->
+        <div class="w-32 h-32 bg-gradient-to-br from-orange-300 to-pink-300 rounded-lg flex items-center justify-center border-4 border-white shadow-lg relative">
+          <span class="text-white text-5xl font-bold">{{ shop?.avatar }}</span>
+          <div *ngIf="shop?.isVerified" class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+            <mat-icon class="text-white">verified</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Shop Info -->
+        <div class="ml-6 flex-1 pb-4">
+          <h1 class="text-3xl font-bold text-gray-900">{{ shop?.name }}</h1>
+          <p class="text-gray-600 mt-1">{{ shop?.tagline }}</p>
+          
+          <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+            <div class="flex items-center">
+              <mat-icon class="text-yellow-400 text-lg mr-1">star</mat-icon>
+              <span>{{ shop?.rating }} ({{ shop?.reviews.length }} avis)</span>
+            </div>
+            <span>•</span>
+            <span>{{ shop?.totalSales }} ventes</span>
+            <span>•</span>
+            <span>📍 {{ shop?.location }}</span>
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="pb-4">
+          <button mat-raised-button color="primary" class="mr-3">
+            <mat-icon class="mr-2">favorite_border</mat-icon>
+            Suivre
+          </button>
+          <button mat-stroked-button>
+            <mat-icon class="mr-2">email</mat-icon>
+            Contacter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <mat-tab-group animationDuration="0ms">
+      
+      <!-- Products Tab -->
+      <mat-tab label="Produits ({{ shop?.productCount }})">
+        <div class="py-6">
+          <!-- Filters -->
+          <div class="bg-white rounded-lg shadow-sm p-4 mb-8 flex items-center justify-between">
+            <mat-form-field appearance="outline" class="w-72">
+              <mat-label>Rechercher un produit</mat-label>
+              <input matInput [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()">
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="w-48">
+              <mat-label>Trier par</mat-label>
+              <mat-select [(ngModel)]="sortBy" (selectionChange)="applyFilters()">
+                <mat-option value="popularity">Popularité</mat-option>
+                <mat-option value="price_asc">Prix croissant</mat-option>
+                <mat-option value="price_desc">Prix décroissant</mat-option>
+                <mat-option value="newest">Nouveautés</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Products Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <app-product-card *ngFor="let product of getPaginatedProducts()" [product]="product"></app-product-card>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="filteredProducts.length > pageSize" class="mt-8 flex justify-center">
+            <mat-paginator 
+              [length]="totalItems"
+              [pageSize]="pageSize"
+              [pageSizeOptions]="pageSizeOptions"
+              [pageIndex]="currentPage"
+              (page)="onPageChange($event)">
+            </mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+      
+      <!-- About Tab -->
+      <mat-tab label="À propos">
+        <div class="py-6">
+          <mat-card>
+            <mat-card-content class="p-6 prose max-w-none">
+              <p>{{ shop?.description }}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Reviews Tab -->
+      <mat-tab label="Avis ({{ shop?.reviews.length }})">
+        <div class="py-6 space-y-6">
+          <mat-card *ngFor="let review of shop?.reviews">
+            <mat-card-content class="p-6">
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                  <mat-icon>person</mat-icon>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <h4 class="font-semibold">{{ review.author }}</h4>
+                    <div class="flex">
+                      <mat-icon *ngFor="let filled of getStarArray(review.rating)" class="text-yellow-400">
+                        {{ filled ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    </div>
+                  </div>
+                  <p class="mt-2 text-gray-700">{{ review.content }}</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Policies Tab -->
+      <mat-tab label="Conditions de vente">
+        <div class="py-6">
+          <mat-card>
+            <mat-card-content class="p-6 prose max-w-none">
+              <h4>Livraison</h4>
+              <p>{{ shop?.policies.shipping }}</p>
+              <h4>Retours & échanges</h4>
+              <p>{{ shop?.policies.returns }}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<!-- Loading State -->
+<ng-template #loadingState>
+  <div class="flex items-center justify-center h-screen">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+</ng-template> 

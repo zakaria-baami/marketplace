@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../shared/components/header/header';
+import { ProductService } from '../../../core/services/product';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-product-detail',
@@ -25,59 +27,51 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatDividerModule,
     MatChipsModule,
     FormsModule,
-    HeaderComponent
+    HeaderComponent,
+    MatProgressSpinnerModule
   ],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.css']
 })
-export class ProductDetailComponent {
+export class ProductDetailComponent implements OnInit {
   selectedQuantity = 1;
   selectedImageIndex = 0;
   isFavorite = false;
+  product: any = null;
+  loading = true;
+  error: string | null = null;
 
-  product = {
-    id: 1,
-    name: 'Collier artisanal en argent avec pendentif lune',
-    price: 45.99,
-    originalPrice: 59.99,
-    description: 'Un magnifique collier artisanal en argent 925 avec un pendentif en forme de lune. Chaque pièce est unique et fabriquée à la main par nos artisans expérimentés.',
-    rating: 4.8,
-    reviewCount: 23,
-    stock: 12,
-    images: [
-      '/api/placeholder/400/400',
-      '/api/placeholder/400/400',
-      '/api/placeholder/400/400',
-      '/api/placeholder/400/400',
-    ],
-    category: 'Bijoux & Accessoires',
-    tags: ['Artisanal', 'Argent 925', 'Fait main', 'Unique'],
-    seller: {
-      name: 'Marie Créations',
-      avatar: 'MC',
-      rating: 4.9,
-      totalSales: 1250,
-      memberSince: '2020',
-      grade: 'Premium',
-      isVerified: true,
-      responseTime: '< 2h',
-      location: 'Paris, France'
-    },
-    features: [
-      'Argent 925 certifié',
-      'Livraison gratuite',
-      'Emballage cadeau inclus',
-      'Garantie 2 ans'
-    ],
-    specifications: {
-      'Matériau': 'Argent 925',
-      'Longueur chaîne': '45 cm (ajustable)',
-      'Taille pendentif': '2.5 x 1.8 cm',
-      'Poids': '8.5 g',
-      'Style': 'Moderne minimaliste',
-      'Entretien': 'Nettoyer avec un chiffon doux'
+  constructor(
+    private route: ActivatedRoute,
+    private productService: ProductService
+  ) {}
+
+  ngOnInit(): void {
+    const productId = this.route.snapshot.paramMap.get('id');
+    if (productId) {
+      this.loadProduct(Number(productId));
+    } else {
+        this.loading = false;
+        this.error = "Product ID is missing."
     }
-  };
+  }
+
+  loadProduct(id: number): void {
+    this.loading = true;
+    this.error = null;
+    this.productService.getProductById(id).subscribe({
+      next: (data) => {
+        this.product = data;
+        this.loading = false;
+        // ... maybe call other methods to load related products, etc.
+      },
+      error: (err) => {
+        this.error = 'Failed to load product details.';
+        this.loading = false;
+        console.error(err);
+      }
+    });
+  }
 
   reviews = [
     {

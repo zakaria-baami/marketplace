@@ -1,0 +1,55 @@
+<div class="template-galleria bg-white font-sans">
+  <!-- Full-width Banner -->
+  <header class="h-[500px] bg-gray-200 flex items-center justify-center relative">
+    <!-- Placeholder for Banner Image -->
+    <div class="absolute inset-0 bg-black opacity-20"></div>
+    <div class="text-center z-10">
+      <!-- Placeholder for Logo -->
+      <div class="w-28 h-28 mx-auto bg-white/80 backdrop-blur-sm rounded-full mb-4 flex items-center justify-center shadow-lg">
+        <mat-icon class="text-gray-600 text-5xl">storefront</mat-icon>
+      </div>
+      <h1 class="text-5xl font-extrabold text-white tracking-tight drop-shadow-lg">{{ shop.name }}</h1>
+      <p class="text-xl text-white mt-2 drop-shadow-md max-w-2xl">{{ shop.tagline }}</p>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- About Section -->
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Notre Histoire</h2>
+      <p class="text-gray-700 leading-relaxed">{{ shop.description }}</p>
+    </section>
+
+    <!-- Category Links -->
+    <nav class="mb-12">
+      <ul class="flex items-center justify-center space-x-4 md:space-x-8">
+        <li *ngFor="let category of shop.categories">
+          <a href="#" class="block font-semibold text-gray-600 hover:text-orange-600 transition-colors pb-2 border-b-2 border-transparent hover:border-orange-500">
+            {{ category }}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Products Grid -->
+    <main>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <a *ngFor="let product of products" [routerLink]="['/products', product.id]" class="block group text-center">
+          <div class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden shadow-md group-hover:shadow-2xl transition-shadow duration-300">
+            <!-- Placeholder for Product Image -->
+            <mat-icon class="text-gray-300 w-full h-full">image</mat-icon>
+          </div>
+          <h3 class="font-semibold text-gray-800 mt-4">{{ product.name }}</h3>
+          <p class="text-lg text-gray-900 font-bold mt-1">{{ product.price }}€</p>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 mt-16 py-8">
+    <div class="text-center text-sm text-gray-500">
+      <p>&copy; 2024 {{ shop.name }}. Tous droits réservés.</p>
+    </div>
+  </footer>
+</div> 

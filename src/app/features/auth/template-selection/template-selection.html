@@ -1,0 +1,44 @@
+<div class="min-h-screen bg-gray-50 p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+        Choisissez un thème pour votre boutique
+      </h1>
+      <p class="mt-4 text-xl text-gray-600">
+        Vous avez choisi le plan <span class="font-bold text-orange-600">{{ selectedPlan }}</span>. Voici les thèmes disponibles.
+      </p>
+    </div>
+
+    <!-- Template Previews -->
+    <div class="space-y-16">
+      <div *ngFor="let template of availableTemplates" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-6 flex justify-between items-center bg-gray-100 border-b">
+          <h2 class="text-2xl font-bold text-gray-800">{{ template.name }}</h2>
+          <button mat-raised-button color="primary" (click)="selectTemplate(template.id)" class="bg-orange-500 hover:bg-orange-600">
+            <mat-icon class="mr-2">check_circle</mat-icon>
+            Choisir ce thème
+          </button>
+        </div>
+        
+        <!-- Live Preview -->
+        <div class="h-[600px] overflow-auto">
+          <div [ngSwitch]="template.id">
+            <app-template-classic *ngSwitchCase="'classic'" [shop]="mockShopData" [products]="mockProducts"></app-template-classic>
+            <app-template-modern *ngSwitchCase="'modern'" [shop]="mockShopData" [products]="mockProducts"></app-template-modern>
+            <app-template-minimalist *ngSwitchCase="'minimalist'" [shop]="mockShopData" [products]="mockProducts"></app-template-minimalist>
+            <app-template-bold *ngSwitchCase="'bold'" [shop]="mockShopData" [products]="mockProducts"></app-template-bold>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="availableTemplates.length === 0" class="text-center py-20">
+      <mat-icon class="text-gray-400 text-6xl mb-4">error_outline</mat-icon>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucun thème disponible</h3>
+      <p class="text-gray-600">Veuillez sélectionner un plan pour voir les thèmes disponibles.</p>
+      <a mat-button [routerLink]="['/auth/register/plans']" class="mt-4">Retourner aux plans</a>
+    </div>
+  </div>
+</div> 

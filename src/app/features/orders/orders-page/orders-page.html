@@ -1,0 +1,106 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Mes Commandes</h1>
+      <p class="text-gray-600 mt-2">Suivez l'état de vos commandes et consultez votre historique d'achats.</p>
+    </div>
+
+    <!-- Orders Tabs -->
+    <mat-tab-group (selectedTabChange)="filterOrders($event)" class="bg-white rounded-lg shadow-sm">
+      <mat-tab label="Toutes"></mat-tab>
+      <mat-tab label="En cours"></mat-tab>
+      <mat-tab label="Expédiées"></mat-tab>
+      <mat-tab label="Livrées"></mat-tab>
+      <mat-tab label="Annulées"></mat-tab>
+    </mat-tab-group>
+
+    <!-- Orders List -->
+    <div class="mt-8 space-y-6">
+      <div *ngIf="filteredOrders.length > 0; else emptyState">
+        <mat-card *ngFor="let order of getPaginatedOrders()" class="order-card">
+          <mat-card-header class="p-4 border-b">
+            <div class="flex items-center justify-between w-full">
+              <div>
+                <h3 class="font-semibold text-gray-900">Commande #{{ order.id }}</h3>
+                <p class="text-sm text-gray-600">Passée le {{ order.date | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="font-semibold">{{ order.total | currency:'EUR' }}</p>
+                <mat-chip-listbox>
+                  <mat-chip [ngClass]="'status-' + order.status">{{ order.statusText }}</mat-chip>
+                </mat-chip-listbox>
+              </div>
+            </div>
+          </mat-card-header>
+          
+          <mat-card-content class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Items List -->
+              <div class="space-y-4">
+                <div *ngFor="let item of order.items" class="flex items-center space-x-4">
+                  <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <mat-icon class="text-gray-400">image</mat-icon>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">{{ item.name }}</p>
+                    <p class="text-sm text-gray-600">Qté: {{ item.quantity }}</p>
+                  </div>
+                  <p class="font-semibold">{{ item.price | currency:'EUR' }}</p>
+                </div>
+              </div>
+
+              <!-- Tracking -->
+              <div>
+                <h4 class="font-semibold mb-4">Suivi de la commande</h4>
+                <mat-stepper [linear]="true" #stepper [selectedIndex]="getStepperIndex(order)" class="tracking-stepper">
+                  <mat-step state="done">
+                    <ng-template matStepLabel>Commande passée</ng-template>
+                  </mat-step>
+                  <mat-step [state]="order.status === 'shipped' || order.status === 'delivered' ? 'done' : 'number'">
+                    <ng-template matStepLabel>Expédiée</ng-template>
+                  </mat-step>
+                  <mat-step [state]="order.status === 'delivered' ? 'done' : 'number'">
+                    <ng-template matStepLabel>Livrée</ng-template>
+                  </mat-step>
+                </mat-stepper>
+                <p *ngIf="order.trackingNumber" class="text-sm mt-4">
+                  N° de suivi: <span class="font-medium text-orange-600">{{ order.trackingNumber }}</span>
+                </p>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions class="p-4 border-t flex justify-between items-center">
+            <p class="text-sm text-gray-600">Vendu par : <a href="#" class="font-medium text-orange-600">{{ order.seller }}</a></p>
+            <div>
+              <button mat-stroked-button class="mr-2">Voir la commande</button>
+              <button mat-stroked-button>Acheter à nouveau</button>
+            </div>
+          </mat-card-actions>
+        </mat-card>
+        
+        <!-- Pagination -->
+        <div *ngIf="totalItems > pageSize" class="mt-8 flex justify-center">
+          <mat-paginator 
+            [length]="totalItems"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="currentPage"
+            (page)="onPageChange($event)">
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyState>
+  <div class="text-center py-20 bg-white rounded-lg shadow-sm">
+    <mat-icon class="text-gray-400 text-6xl mb-4">receipt_long</mat-icon>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune commande dans cette catégorie</h3>
+    <p class="text-gray-600">Passez une commande pour la voir apparaître ici.</p>
+  </div>
+</ng-template> 

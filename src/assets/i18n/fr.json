@@ -1,0 +1,39 @@
+{
+  "HEADER": {
+    "HOME": "Accueil",
+    "CATEGORIES": "Catégories",
+    "FAVORITES": "Favoris",
+    "CART": "Panier",
+    "LOGIN": "Se connecter",
+    "REGISTER": "S'inscrire",
+    "LOGOUT": "Se déconnecter"
+  },
+  "DASHBOARD": {
+    "TITLE": "Tableau de bord Vendeur",
+    "EDIT_SHOP": "Modifier la boutique",
+    "VIEW_SHOP": "Voir la boutique",
+    "CUSTOMIZE_SHOP": "Personnaliser la boutique"
+  },
+  "PRODUCT": {
+    "ADD": "Ajouter un produit",
+    "EDIT": "Modifier",
+    "DELETE": "Supprimer",
+    "PRICE": "Prix",
+    "STOCK": "Stock"
+  },
+  "SHOP": {
+    "NAME": "Nom de la boutique",
+    "TAGLINE": "Slogan",
+    "DESCRIPTION": "Description",
+    "LOGO": "Logo",
+    "BANNER": "Bannière",
+    "TEMPLATE": "Template",
+    "SAVE": "Enregistrer"
+  },
+  "COMMON": {
+    "YES": "Oui",
+    "NO": "Non",
+    "CANCEL": "Annuler",
+    "CONFIRM": "Confirmer"
+  }
+}

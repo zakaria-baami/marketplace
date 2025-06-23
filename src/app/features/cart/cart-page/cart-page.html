@@ -1,0 +1,257 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Panier</h1>
+      <p class="text-gray-600 mt-2">{{ cartItems.length }} article(s) dans votre panier</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2">
+        <mat-card class="mb-6">
+          <mat-card-content class="p-6">
+            <!-- Cart Header -->
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center space-x-3">
+                <mat-checkbox 
+                  [checked]="selectedItems.length === getAvailableItems().length && getAvailableItems().length > 0"
+                  [indeterminate]="selectedItems.length > 0 && selectedItems.length < getAvailableItems().length"
+                  (change)="toggleAllItems()">
+                  Sélectionner tout
+                </mat-checkbox>
+                <span class="text-sm text-gray-600">{{ selectedItems.length }} sur {{ getAvailableItems().length }} sélectionné(s)</span>
+              </div>
+              <button mat-button color="warn" (click)="removeSelectedItems()" 
+                      [disabled]="selectedItems.length === 0">
+                <mat-icon>delete</mat-icon>
+                Supprimer
+              </button>
+            </div>
+
+            <!-- Cart Items List -->
+            <div class="space-y-6">
+              <div *ngFor="let item of cartItems" class="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg">
+                <!-- Item Image -->
+                <a [routerLink]="['/products', item.id]" class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <mat-icon class="text-gray-400">image</mat-icon>
+                </a>
+
+                <!-- Item Details -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <a [routerLink]="['/products', item.id]" class="font-semibold text-gray-900 mb-1 hover:underline block">{{ item.name }}</a>
+                      <p class="text-sm text-gray-600 mb-2">Par {{ item.seller }}</p>
+                      
+                      <!-- Price -->
+                      <div class="flex items-center space-x-2 mb-3">
+                        <span class="text-lg font-bold text-orange-600">{{ item.price }}€</span>
+                        <span *ngIf="item.originalPrice > item.price" 
+                              class="text-sm text-gray-500 line-through">{{ item.originalPrice }}€</span>
+                        <span *ngIf="item.originalPrice > item.price" 
+                              class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                          -{{ ((item.originalPrice - item.price) / item.originalPrice * 100).toFixed(0) }}%
+                        </span>
+                      </div>
+
+                      <!-- Availability Status -->
+                      <div *ngIf="!item.available" class="text-red-600 text-sm mb-3">
+                        <mat-icon class="text-sm mr-1">error</mat-icon>
+                        Produit indisponible
+                      </div>
+                    </div>
+
+                    <!-- Selection Checkbox -->
+                    <mat-checkbox 
+                      [checked]="selectedItems.includes(item.id)"
+                      [disabled]="!item.available"
+                      (change)="toggleItemSelection(item.id)"
+                      class="ml-4">
+                    </mat-checkbox>
+                  </div>
+
+                  <!-- Quantity Controls -->
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <button mat-icon-button 
+                              [disabled]="item.quantity <= 1"
+                              (click)="updateQuantity(item.id, item.quantity - 1)"
+                              class="border border-gray-300">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <span class="px-4 py-2 border border-gray-300 rounded-md text-center min-w-[60px]">
+                        {{ item.quantity }}
+                      </span>
+                      <button mat-icon-button 
+                              [disabled]="item.quantity >= item.maxQuantity"
+                              (click)="updateQuantity(item.id, item.quantity + 1)"
+                              class="border border-gray-300">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                      <span class="text-sm text-gray-500 ml-2">
+                        {{ item.maxQuantity }} disponible(s)
+                      </span>
+                    </div>
+
+                    <!-- Item Total -->
+                    <div class="text-right">
+                      <div class="font-semibold text-gray-900">{{ getItemTotal(item) }}€</div>
+                      <div *ngIf="getItemSavings(item) > 0" class="text-sm text-green-600">
+                        Économie: {{ getItemSavings(item) }}€
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Remove Button -->
+                  <div class="mt-3">
+                    <button mat-button color="warn" (click)="removeItem(item.id)" class="text-sm">
+                      <mat-icon class="text-sm mr-1">delete</mat-icon>
+                      Retirer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty Cart -->
+            <div *ngIf="cartItems.length === 0" class="text-center py-12">
+              <mat-icon class="text-gray-400 text-6xl mb-4">shopping_cart</mat-icon>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Votre panier est vide</h3>
+              <p class="text-gray-600 mb-6">Découvrez nos produits et commencez vos achats</p>
+              <button mat-raised-button color="primary" routerLink="/products">
+                <mat-icon class="mr-2">shopping_bag</mat-icon>
+                Découvrir les produits
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Continue Shopping -->
+        <div class="text-center">
+          <button mat-stroked-button (click)="continueShopping()">
+            <mat-icon class="mr-2">arrow_back</mat-icon>
+            Continuer mes achats
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-1">
+        <mat-card class="sticky top-8">
+          <mat-card-header>
+            <mat-card-title>Récapitulatif</mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content class="p-6">
+            <!-- Coupon Code -->
+            <div class="mb-6">
+              <h4 class="font-semibold text-gray-900 mb-3">Code promo</h4>
+              <div class="flex space-x-2">
+                <input 
+                  type="text" 
+                  [(ngModel)]="couponCode"
+                  placeholder="Entrez votre code"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <button mat-raised-button 
+                        color="primary"
+                        (click)="applyCoupon()"
+                        [disabled]="!couponCode.trim()">
+                  Appliquer
+                </button>
+              </div>
+              
+              <!-- Applied Coupon -->
+              <div *ngIf="appliedCoupon" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-green-800">{{ appliedCoupon.code }}</div>
+                    <div class="text-sm text-green-600">
+                      -{{ appliedCoupon.discount }}{{ appliedCoupon.type === 'percentage' ? '%' : '€' }}
+                    </div>
+                  </div>
+                  <button mat-icon-button (click)="removeCoupon()" class="text-green-600">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipping Options -->
+            <div class="mb-6">
+              <h4 class="font-semibold text-gray-900 mb-3">Livraison</h4>
+              <div class="space-y-2">
+                <div *ngFor="let option of shippingOptions" 
+                     class="flex items-center justify-between p-3 border rounded-md cursor-pointer"
+                     [class.border-orange-500]="selectedShipping === option.id"
+                     [class.border-gray-200]="selectedShipping !== option.id"
+                     (click)="selectedShipping = option.id">
+                  <div>
+                    <div class="font-medium">{{ option.name }}</div>
+                    <div class="text-sm text-gray-600">{{ option.days }}</div>
+                    <div *ngIf="option.minOrder" class="text-xs text-gray-500">
+                      Commande min. {{ option.minOrder }}€
+                    </div>
+                  </div>
+                  <div class="font-semibold">
+                    {{ option.price === 0 ? 'Gratuit' : option.price + '€' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between">
+                <span>Sous-total ({{ selectedItems.length }} article(s))</span>
+                <span>{{ getSubtotal() }}€</span>
+              </div>
+              
+              <div class="flex justify-between">
+                <span>Livraison</span>
+                <span>{{ getShippingCost() === 0 ? 'Gratuit' : getShippingCost() + '€' }}</span>
+              </div>
+              
+              <div *ngIf="getDiscount() > 0" class="flex justify-between text-green-600">
+                <span>Réduction</span>
+                <span>-{{ getDiscount() }}€</span>
+              </div>
+              
+              <div *ngIf="getSavings() > 0" class="flex justify-between text-green-600">
+                <span>Économies</span>
+                <span>{{ getSavings() }}€</span>
+              </div>
+              
+              <mat-divider></mat-divider>
+              
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span>{{ getTotal() }}€</span>
+              </div>
+            </div>
+
+            <!-- Checkout Button -->
+            <button mat-raised-button 
+                    color="primary" 
+                    class="w-full py-3 bg-orange-500 hover:bg-orange-600"
+                    [disabled]="selectedItems.length === 0"
+                    (click)="proceedToCheckout()">
+              <mat-icon class="mr-2">shopping_cart_checkout</mat-icon>
+              Passer la commande
+            </button>
+
+            <!-- Security Info -->
+            <div class="mt-4 text-center">
+              <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <mat-icon class="text-sm">security</mat-icon>
+                <span>Paiement sécurisé</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div> 

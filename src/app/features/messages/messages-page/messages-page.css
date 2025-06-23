@@ -1,0 +1,23 @@
+/* Messages Page Styles */
+mat-list-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+mat-list-item:hover {
+  background-color: #f9fafb;
+}
+
+.message-bubble {
+  word-wrap: break-word;
+}
+
+.message-input .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+} 

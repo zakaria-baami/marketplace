@@ -1,0 +1,58 @@
+<app-header></app-header>
+
+<div class="bg-gray-50 min-h-screen">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center h-screen">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+    <div class="py-20 bg-red-50 border border-red-200 rounded-lg">
+      <mat-icon class="text-red-500 text-6xl mb-4">error_outline</mat-icon>
+      <h3 class="text-xl font-semibold text-red-800 mb-2">Oops! Something went wrong</h3>
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && category">
+    <!-- Category Header -->
+    <div class="bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <nav class="flex py-3 text-sm" aria-label="Breadcrumb">
+          <a routerLink="/" class="text-gray-500 hover:text-orange-600">Accueil</a>
+          <mat-icon class="mx-2 text-gray-400">chevron_right</mat-icon>
+          <a routerLink="/products" class="text-gray-500 hover:text-orange-600">Catégories</a>
+          <mat-icon class="mx-2 text-gray-400">chevron_right</mat-icon>
+          <span class="text-gray-900">{{ category.nom }}</span>
+        </nav>
+        <div class="mt-4 text-center">
+          <h1 class="text-4xl font-extrabold text-gray-900">{{ category.nom }}</h1>
+          <p class="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">{{ category.description }}</p>
+          <div class="mt-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+              {{ category.productCount }} articles
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div *ngIf="products.length > 0; else noProducts">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+        </div>
+      </div>
+      <ng-template #noProducts>
+        <div class="text-center py-20">
+          <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+          <h3 class="text-2xl font-semibold text-gray-800 mb-2">No Products Found</h3>
+          <p class="text-gray-600">There are currently no products available in this category.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div> 

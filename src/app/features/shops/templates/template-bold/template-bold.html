@@ -1,0 +1,54 @@
+<div class="template-vogue bg-black text-white font-sans">
+  
+  <!-- Hero Section with Background Image -->
+  <header class="h-screen min-h-[700px] bg-gray-800 bg-cover bg-center flex flex-col justify-between p-8 relative">
+     <!-- Placeholder for a full-screen background banner -->
+    <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
+    
+    <div class="relative z-10 text-left">
+      <h1 class="text-2xl font-bold tracking-widest uppercase">{{ shop.name }}</h1>
+    </div>
+
+    <div class="relative z-10 text-center">
+      <h2 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none">{{ shop.tagline }}</h2>
+      <p class="mt-4 max-w-lg mx-auto text-gray-300">
+        {{ shop.description }}
+      </p>
+    </div>
+
+    <div class="relative z-10 text-center">
+      <a href="#products" class="inline-block animate-bounce">
+        <mat-icon class="text-4xl">keyboard_arrow_down</mat-icon>
+      </a>
+    </div>
+  </header>
+
+  <!-- Products Section -->
+  <main id="products" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-12">
+      <h3 class="text-4xl font-bold tracking-tight">La Collection</h3>
+      <div class="mt-4 h-1 w-24 bg-orange-500 mx-auto"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+      <a *ngFor="let product of products" [routerLink]="['/products', product.id]" class="block group">
+        <div class="aspect-w-1 aspect-h-1 bg-gray-900 overflow-hidden">
+          <!-- Placeholder for Product Image -->
+          <mat-icon class="text-gray-700 w-full h-full transform group-hover:scale-110 transition-transform duration-500"></mat-icon>
+        </div>
+        <div class="mt-4 text-center">
+          <h4 class="text-xl font-semibold text-white">{{ product.name }}</h4>
+          <p class="text-lg text-gray-400 mt-1">{{ product.price }}€</p>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-12 bg-gray-900">
+    <div class="text-center text-gray-500 text-sm">
+      <h4 class="text-lg font-bold tracking-widest uppercase mb-2">{{ shop.name }}</h4>
+      <p>&copy; 2024. All rights reserved.</p>
+    </div>
+  </footer>
+</div> 

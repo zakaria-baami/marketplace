@@ -26,6 +26,7 @@ export class HomepageComponent {
 
   featuredProducts = [
     {
+      id: 1,
       name: 'Collier artisanal en argent',
       price: 45,
       rating: 4.8,
@@ -33,6 +34,7 @@ export class HomepageComponent {
       seller: { name: 'Marie Créations', grade: 'Premium' }
     },
     {
+      id: 2,
       name: 'Vase en céramique fait main',
       price: 35,
       rating: 4.9,
@@ -40,6 +42,7 @@ export class HomepageComponent {
       seller: { name: 'Atelier Poterie', grade: 'Professionnel' }
     },
     {
+      id: 3,
       name: 'Sac en cuir vintage',
       price: 89,
       rating: 4.7,
@@ -47,6 +50,7 @@ export class HomepageComponent {
       seller: { name: 'Vintage Style', grade: 'Premium' }
     },
     {
+      id: 4,
       name: 'Tableau aquarelle original',
       price: 120,
       rating: 5.0,

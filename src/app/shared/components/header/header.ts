@@ -25,7 +25,7 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     MatFormFieldModule,
     MatDividerModule, 
-    FormsModule 
+    FormsModule
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
@@ -88,6 +88,7 @@ export class HeaderComponent {
   onCategoryClick(category: any) {
     console.log('Category clicked:', category.name);
     // TODO: Navigate to category page
-    // this.router.navigate([category.path]);
+    // If you want to support dynamic navigation:
+    // this.router.navigate(['/categories', category.slug]);
   }
 }

@@ -3,12 +3,7 @@
  <!-- Top Bar -->
 <div class="top-bar bg-gray-100 py-2">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-end items-center text-sm">
-      <div class="flex items-center space-x-4">
-        <a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">🌍 Français</a>
-        <a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">💡 Aide</a>
-      </div>
-    </div>
+    <!-- Remove the right-side links entirely -->
   </div>
 </div>
 
@@ -50,31 +45,31 @@
         <div class="hidden md:flex items-center space-x-4">
           
           <!-- Categories Dropdown -->
-          <button mat-button [matMenuTriggerFor]="categoriesMenu" class="nav-button">
+          <a mat-button [routerLink]="['/categories']" class="nav-button">
             <mat-icon>category</mat-icon>
             <span class="ml-1">Catégories</span>
-          </button>
+          </a>
 
           <!-- Favorites -->
-          <button mat-icon-button class="nav-icon-button" title="Favoris">
+          <a mat-icon-button class="nav-icon-button" [routerLink]="['/favorites']" title="Favoris">
             <mat-icon>favorite_border</mat-icon>
-          </button>
+          </a>
 
           <!-- Cart -->
-          <button mat-icon-button class="nav-icon-button relative" (click)="onCart()" title="Panier">
+          <a mat-icon-button class="nav-icon-button relative" [routerLink]="['/cart']" title="Panier">
             <mat-icon [matBadge]="cartItemsCount" matBadgeColor="accent" matBadgeSize="small" aria-hidden="false">
               shopping_cart
             </mat-icon>
-          </button>
+          </a>
 
           <!-- User Menu -->
           <div *ngIf="!isLoggedIn">
-            <button mat-button (click)="onLogin()" class="text-gray-700 hover:text-orange-600">
+            <a mat-button [routerLink]="['/auth/login']" class="text-gray-700 hover:text-orange-600">
               Se connecter
-            </button>
-            <button mat-raised-button color="primary" (click)="onRegister()" class="ml-2 bg-orange-500 hover:bg-orange-600">
+            </a>
+            <a mat-raised-button color="primary" [routerLink]="['/auth/register/role']" class="ml-2 bg-orange-500 hover:bg-orange-600">
               S'inscrire
-            </button>
+            </a>
           </div>
 
           <div *ngIf="isLoggedIn">
@@ -146,27 +141,27 @@
 
 <!-- User Menu -->
 <mat-menu #userMenu="matMenu">
-  <button mat-menu-item (click)="onProfile()">
+  <a mat-menu-item [routerLink]="['/client']">
     <mat-icon class="mr-3">person</mat-icon>
     <span>Mon profil</span>
-  </button>
-  <button mat-menu-item>
+  </a>
+  <a mat-menu-item [routerLink]="['/orders']">
     <mat-icon class="mr-3">shopping_bag</mat-icon>
     <span>Mes commandes</span>
-  </button>
-  <button mat-menu-item>
+  </a>
+  <a mat-menu-item [routerLink]="['/favorites']">
     <mat-icon class="mr-3">favorite</mat-icon>
     <span>Mes favoris</span>
-  </button>
-  <button mat-menu-item>
+  </a>
+  <a mat-menu-item [routerLink]="['/vendeur']">
     <mat-icon class="mr-3">store</mat-icon>
     <span>Ma boutique</span>
-  </button>
+  </a>
   <mat-divider></mat-divider>
-  <button mat-menu-item>
+  <a mat-menu-item [routerLink]="['/client/settings']">
     <mat-icon class="mr-3">settings</mat-icon>
     <span>Paramètres</span>
-  </button>
+  </a>
   <button mat-menu-item (click)="onLogout()">
     <mat-icon class="mr-3">logout</mat-icon>
     <span>Se déconnecter</span>
@@ -209,7 +204,7 @@
       <button mat-raised-button color="primary" (click)="onLogin()" class="w-full">
         Se connecter
       </button>
-      <button mat-stroked-button (click)="onRegister()" class="w-full">
+      <button mat-stroked-button [routerLink]="['/auth/register/role']" class="w-full">
         S'inscrire
       </button>
     </div>

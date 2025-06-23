@@ -1,1 +1,17 @@
-<p>product-card works!</p>
+<a class="block bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden group" [routerLink]="['/products', product.id]">
+  <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+    <img *ngIf="product.images && product.images.length" [src]="product.images[0].url" alt="{{ product.nom }}" class="object-cover w-full h-full group-hover:scale-105 transition-transform" />
+    <mat-icon *ngIf="!product.images || !product.images.length" class="text-gray-300 text-5xl">image</mat-icon>
+  </div>
+  <div class="p-4">
+    <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">{{ product.nom }}</h3>
+    <div class="text-sm text-gray-500 mb-2" *ngIf="product.boutique">Par {{ product.boutique.nom }}</div>
+    <div class="flex items-center justify-between">
+      <span class="text-lg font-bold text-orange-600">{{ product.prix }}€</span>
+      <div class="flex items-center text-sm text-gray-500" *ngIf="product.rating">
+        <mat-icon class="text-yellow-400 text-sm mr-1">star</mat-icon>
+        {{ product.rating }}
+      </div>
+    </div>
+  </div>
+</a>

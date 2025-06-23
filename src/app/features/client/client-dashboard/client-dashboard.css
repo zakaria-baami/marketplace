@@ -1,0 +1,204 @@
+/* Client Dashboard Styles */
+.dashboard-tabs {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-body-content {
+  padding: 0;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-label.mat-mdc-tab-label-active {
+  color: #f97316;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-ink-bar {
+  background-color: #f97316;
+}
+
+/* Order Cards */
+.order-card {
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Favorite Product Cards */
+.favorite-card {
+  transition: all 0.3s ease;
+}
+
+.favorite-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+.favorite-card .product-image {
+  transition: all 0.3s ease;
+}
+
+.favorite-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Address Cards */
+.address-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.address-card:hover {
+  border-color: #f97316;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1);
+}
+
+.address-card.default {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+/* Progress Bar */
+::ng-deep .mat-mdc-progress-bar-fill::after {
+  background-color: #f97316;
+}
+
+::ng-deep .mat-mdc-progress-bar-background {
+  background-color: #e5e7eb;
+}
+
+/* Status Icons */
+.status-icon {
+  transition: all 0.2s ease;
+}
+
+.status-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Action Buttons */
+.action-button {
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .user-stats {
+    margin-top: 1rem;
+    justify-content: center;
+  }
+  
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .order-actions {
+    margin-top: 1rem;
+    justify-content: flex-start;
+  }
+  
+  .favorite-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .favorite-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Loading States */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Empty State Animations */
+.empty-state-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Tab Content Animation */
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loyalty Level Colors */
+.level-bronze {
+  color: #d97706;
+}
+
+.level-silver {
+  color: #6b7280;
+}
+
+.level-gold {
+  color: #f59e0b;
+}
+
+.level-platinum {
+  color: #3b82f6;
+}
+
+/* Line Clamp Utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+} 

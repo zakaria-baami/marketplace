@@ -1,0 +1,70 @@
+<div class="template-artisan bg-white font-sans">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      
+      <!-- Sidebar -->
+      <aside class="lg:col-span-1 space-y-8">
+        <!-- Shop Info -->
+        <div class="bg-gray-50 rounded-lg p-6 text-center shadow-sm">
+          <div class="w-24 h-24 mx-auto rounded-full bg-gray-200 mb-4 flex items-center justify-center">
+             <!-- Placeholder for Logo -->
+            <mat-icon class="text-gray-400 text-4xl">storefront</mat-icon>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ shop.name }}</h1>
+          <p class="text-gray-600 mt-1">{{ shop.tagline }}</p>
+          
+          <div class="flex items-center justify-center mt-3 text-sm text-gray-500">
+            <mat-icon class="text-yellow-400 text-base mr-1">star</mat-icon>
+            <span>{{ shop.rating }} ({{ shop.reviewsCount }} avis)</span>
+          </div>
+        </div>
+
+        <!-- Shop Description -->
+        <div class="bg-gray-50 rounded-lg p-6 shadow-sm">
+          <h2 class="text-lg font-semibold text-gray-800 mb-3">À propos de la boutique</h2>
+          <p class="text-sm text-gray-600 leading-relaxed">{{ shop.description }}</p>
+        </div>
+
+        <!-- Categories -->
+        <div class="bg-gray-50 rounded-lg p-6 shadow-sm">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Catégories</h2>
+          <ul class="space-y-2">
+            <li *ngFor="let category of shop.categories">
+              <a href="#" class="block text-sm text-gray-700 hover:text-orange-600 hover:bg-orange-50 p-2 rounded-md transition-colors">
+                {{ category }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Content: Banner & Products -->
+      <main class="lg:col-span-3">
+        <!-- Banner Image -->
+        <div class="h-64 md:h-80 bg-gray-200 rounded-lg mb-8 shadow-md flex items-center justify-center">
+          <mat-icon class="text-gray-400 text-6xl">collections</mat-icon>
+        </div>
+
+        <!-- Products Grid -->
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Nos créations</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <a *ngFor="let product of products" [routerLink]="['/products', product.id]" class="block group">
+              <mat-card class="h-full overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 rounded-lg">
+                <div class="aspect-w-1 aspect-h-1 bg-gray-200 flex items-center justify-center">
+                  <!-- Placeholder for Product Image -->
+                  <mat-icon class="text-gray-400 text-4xl">image</mat-icon>
+                </div>
+                <div class="p-4">
+                  <h3 class="font-medium text-gray-800 truncate">{{ product.name }}</h3>
+                  <p class="text-lg font-semibold text-gray-900 mt-2">{{ product.price }}€</p>
+                </div>
+              </mat-card>
+            </a>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+</div> 

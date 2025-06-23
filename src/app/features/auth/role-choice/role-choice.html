@@ -1,0 +1,50 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class="max-w-4xl w-full">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+        Rejoignez notre marketplace
+      </h1>
+      <p class="mt-4 text-xl text-gray-600">
+        Comment souhaitez-vous nous rejoindre aujourd'hui ?
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Client Choice -->
+      <a routerLink="/register/client" class="block">
+        <mat-card class="h-full text-center p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 cursor-pointer">
+          <mat-icon class="text-orange-500 text-7xl mb-6">shopping_bag</mat-icon>
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Je suis un client</h2>
+          <p class="text-gray-600 mb-8">
+            Parcourez des milliers d'articles uniques, créez des listes de favoris et achetez en toute sécurité.
+          </p>
+          <button mat-raised-button class="bg-orange-500 hover:bg-orange-600 text-white w-full py-3">
+            Créer un compte client
+          </button>
+        </mat-card>
+      </a>
+
+      <!-- Vendeur Choice -->
+      <a routerLink="/auth/register/plans" class="block">
+        <mat-card class="h-full text-center p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 cursor-pointer">
+          <mat-icon class="text-teal-500 text-7xl mb-6">storefront</mat-icon>
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Je suis un vendeur</h2>
+          <p class="text-gray-600 mb-8">
+            Ouvrez votre boutique, listez vos produits et commencez à vendre à des milliers de clients passionnés.
+          </p>
+          <button mat-raised-button class="bg-teal-500 hover:bg-teal-600 text-white w-full py-3">
+            Ouvrir ma boutique
+          </button>
+        </mat-card>
+      </a>
+    </div>
+
+    <div class="text-center mt-12">
+      <p class="text-gray-600">Vous avez déjà un compte ? 
+        <a routerLink="/login" class="font-medium text-orange-600 hover:text-orange-500">
+          Connectez-vous
+        </a>
+      </p>
+    </div>
+  </div>
+</div> 

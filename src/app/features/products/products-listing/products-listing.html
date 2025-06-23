@@ -1,0 +1,151 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Search Header -->
+  <div class="bg-white border-b sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center space-x-4">
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-2xl">
+          <div class="relative">
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery"
+              (input)="applyFilters()"
+              placeholder="Search for anything..."
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Sort Dropdown -->
+        <mat-select [(ngModel)]="sortBy" (selectionChange)="applyFilters()" class="min-w-[150px]">
+          <mat-option value="relevance">Relevance</mat-option>
+          <mat-option value="price-low">Price: Low to High</mat-option>
+          <mat-option value="price-high">Price: High to Low</mat-option>
+          <mat-option value="rating">Highest Rated</mat-option>
+          <mat-option value="newest">Newest</mat-option>
+          <mat-option value="popular">Most Popular</mat-option>
+        </mat-select>
+        
+        <!-- Filter Toggle -->
+        <button mat-button class="flex items-center space-x-2">
+          <mat-icon>tune</mat-icon>
+          <span>Filters</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Filters Sidebar -->
+      <aside class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+          
+          <!-- Categories -->
+          <div class="mb-6">
+            <h4 class="font-medium text-gray-700 mb-3">Categories</h4>
+            <div class="space-y-2">
+              <div *ngFor="let category of categories" 
+                   class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded"
+                   (click)="selectCategory(category.name)">
+                <span class="text-sm" [class.text-orange-600]="selectedCategory === category.name">
+                  {{ category.name }}
+                </span>
+                <span class="text-xs text-gray-500">{{ category.count }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Price Range -->
+          <div class="mb-6">
+            <h4 class="font-medium text-gray-700 mb-3">Price Range</h4>
+            <div class="space-y-2">
+              <div class="flex items-center space-x-2">
+                <input type="number" [(ngModel)]="priceRange[0]" (input)="applyFilters()" 
+                       class="w-20 px-2 py-1 border border-gray-300 rounded text-sm">
+                <span class="text-gray-500">-</span>
+                <input type="number" [(ngModel)]="priceRange[1]" (input)="applyFilters()" 
+                       class="w-20 px-2 py-1 border border-gray-300 rounded text-sm">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Rating -->
+          <div class="mb-6">
+            <h4 class="font-medium text-gray-700 mb-3">Rating</h4>
+            <div class="space-y-2">
+              <div *ngFor="let rating of [4, 3, 2, 1]" 
+                   class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded"
+                   (click)="selectedRating = selectedRating === rating ? 0 : rating">
+                <mat-checkbox [checked]="selectedRating >= rating" class="mr-2"></mat-checkbox>
+                <div class="flex items-center">
+                  <div class="flex">
+                    <mat-icon *ngFor="let filled of getStarArray(rating)" 
+                             class="text-yellow-400 text-sm">
+                      {{ filled ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  </div>
+                  <span class="ml-2 text-sm text-gray-600">& up</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tags -->
+          <div class="mb-6">
+            <h4 class="font-medium text-gray-700 mb-3">Tags</h4>
+            <div class="flex flex-wrap gap-2">
+              <button *ngFor="let tag of availableTags" 
+                      (click)="toggleTag(tag)"
+                      class="px-3 py-1 rounded-full text-sm font-medium transition-colors cursor-pointer"
+                      [class]="selectedTags.includes(tag) ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                {{ tag }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Clear Filters -->
+          <button mat-stroked-button 
+                  (click)="clearFilters()"
+                  class="w-full">
+            Clear All Filters
+          </button>
+        </div>
+      </aside>
+      
+      <!-- Products Grid -->
+      <main class="lg:col-span-3">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex justify-center items-center h-96">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="text-center py-20 bg-red-50 border border-red-200 rounded-lg">
+          <mat-icon class="text-red-500 text-6xl mb-4">error_outline</mat-icon>
+          <h3 class="text-xl font-semibold text-red-800 mb-2">Oops! Something went wrong</h3>
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && !error && products.length === 0" class="text-center py-20">
+          <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+          <p class="text-gray-600">Try adjusting your filters.</p>
+        </div>
+
+        <!-- Products -->
+        <div *ngIf="!loading && !error && products.length > 0">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <a *ngFor="let product of products" [routerLink]="['/products', product.id]">
+              <app-product-card [product]="product"></app-product-card>
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div> 

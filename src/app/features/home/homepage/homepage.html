@@ -66,8 +66,9 @@
       </div>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div *ngFor="let product of featuredProducts" 
-             class="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+        <a *ngFor="let product of featuredProducts"
+           [routerLink]="['/products', product.id]"
+           class="group cursor-pointer transform hover:scale-105 transition-all duration-300 no-underline">
           <mat-card class="overflow-hidden shadow-md hover:shadow-xl transition-shadow">
             <div class="relative">
               <div class="aspect-square bg-gray-200 flex items-center justify-center">
@@ -104,7 +105,7 @@
               </div>
             </mat-card-content>
           </mat-card>
-        </div>
+        </a>
       </div>
       
       <div class="text-center mt-12">
