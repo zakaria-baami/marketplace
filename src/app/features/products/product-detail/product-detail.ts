@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductService } from '../../../core/services/product';
+import { CartService } from '../../../core/services/cart';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
@@ -33,17 +36,22 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.css']
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   selectedQuantity = 1;
   selectedImageIndex = 0;
   isFavorite = false;
   product: any = null;
   loading = true;
   error: string | null = null;
+  isInCart = false;
+  cartQuantity = 0;
+  private cartSubscription: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private cartService: CartService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +62,17 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
         this.error = "Product ID is missing."
     }
+
+    // Subscribe to cart changes
+    this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
+      this.updateCartStatus();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
   }
 
   loadProduct(id: number): void {
@@ -63,6 +82,7 @@ export class ProductDetailComponent implements OnInit {
       next: (data) => {
         this.product = data;
         this.loading = false;
+        this.updateCartStatus();
         // ... maybe call other methods to load related products, etc.
       },
       error: (err) => {
@@ -71,6 +91,13 @@ export class ProductDetailComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  updateCartStatus() {
+    if (this.product) {
+      this.isInCart = this.cartService.isInCart(this.product.id);
+      this.cartQuantity = this.cartService.getItemQuantity(this.product.id);
+    }
   }
 
   reviews = [
@@ -153,13 +180,27 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart() {
-    console.log(`Adding ${this.selectedQuantity} item(s) to cart`);
-    // TODO: Implement add to cart functionality
+    if (!this.product) return;
+    
+    this.cartService.addToCart(this.product, this.selectedQuantity);
+    this.snackBar.open(`${this.selectedQuantity} ${this.selectedQuantity > 1 ? 'articles ajoutés' : 'article ajouté'} au panier`, 'Fermer', { duration: 2000 });
+  }
+
+  removeFromCart() {
+    if (!this.product) return;
+    
+    const cartItems = this.cartService.getCartItems();
+    const cartItem = cartItems.find(item => item.productId === this.product.id);
+    if (cartItem) {
+      this.cartService.removeFromCart(cartItem.id);
+      this.snackBar.open('Produit retiré du panier', 'Fermer', { duration: 2000 });
+    }
   }
 
   buyNow() {
     console.log('Buying now');
     // TODO: Implement buy now functionality
+    this.snackBar.open('Fonctionnalité d\'achat direct à venir', 'Fermer', { duration: 2000 });
   }
 
   contactSeller() {
@@ -202,10 +243,11 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getStarArray(rating: number): boolean[] {
-    return Array(5).fill(false).map((_, index) => index < Math.floor(rating));
+    return Array.from({ length: 5 }, (_, i) => i < rating);
   }
 
   getSavingsPercentage(): number {
+    if (!this.product || !this.product.originalPrice) return 0;
     return Math.round(((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100);
   }
 }

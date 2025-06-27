@@ -66,46 +66,10 @@
       </div>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <a *ngFor="let product of featuredProducts"
-           [routerLink]="['/products', product.id]"
-           class="group cursor-pointer transform hover:scale-105 transition-all duration-300 no-underline">
-          <mat-card class="overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-            <div class="relative">
-              <div class="aspect-square bg-gray-200 flex items-center justify-center">
-                <mat-icon class="text-gray-400 text-4xl">image</mat-icon>
-              </div>
-              <div class="absolute top-2 right-2">
-                <button mat-icon-button class="bg-white bg-opacity-80 hover:bg-opacity-100 transition-all">
-                  <mat-icon class="text-gray-600 hover:text-red-500">favorite_border</mat-icon>
-                </button>
-              </div>
-              <!-- Seller Badge -->
-              <div class="absolute bottom-2 left-2">
-                <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                  {{ product.seller.grade }}
-                </span>
-              </div>
-            </div>
-            
-            <mat-card-content class="p-4">
-              <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
-                {{ product.name }}
-              </h3>
-              <p class="text-sm text-gray-600 mb-2">
-                Par {{ product.seller.name }}
-              </p>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-bold text-orange-600">
-                  {{ product.price }}€
-                </span>
-                <div class="flex items-center text-sm text-gray-500">
-                  <mat-icon class="text-yellow-400 text-sm mr-1">star</mat-icon>
-                  {{ product.rating }} ({{ product.reviews }})
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </a>
+        <app-product-card 
+          *ngFor="let product of featuredProducts"
+          [product]="product">
+        </app-product-card>
       </div>
       
       <div class="text-center mt-12">

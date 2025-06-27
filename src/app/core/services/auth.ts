@@ -26,6 +26,14 @@ export interface AuthResponse {
   };
 }
 
+export interface SellerRegistrationData {
+  nom: string;
+  email: string;
+  password: string;
+  role: 'vendeur';
+  numero_fiscal?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -83,5 +91,19 @@ export class AuthService {
   // Helper to get the current user synchronously
   getCurrentUser(): User | null {
     return this.currentUserValue;
+  }
+
+  registerClient(data: { name: string; email: string; password: string; phone?: string }) {
+    return this.http.post(`${this.apiUrl}/register`, {
+      nom: data.name,
+      email: data.email,
+      password: data.password,
+      telephone: data.phone,
+      role: 'client'
+    });
+  }
+
+  registerSeller(data: SellerRegistrationData) {
+    return this.http.post(`${this.apiUrl}/register`, data);
   }
 }

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
+import { SellerRegisterComponent } from './seller-register/seller-register';
 import { RoleChoiceComponent } from './role-choice/role-choice';
 import { SellerPlansComponent } from './seller-plans/seller-plans';
 import { TemplateSelectionComponent } from './template-selection/template-selection';
@@ -9,7 +10,7 @@ import { TemplateSelectionComponent } from './template-selection/template-select
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'register/vendeur', component: RegisterComponent },
+  { path: 'register/vendeur', component: SellerRegisterComponent },
   { path: 'register/role', component: RoleChoiceComponent },
   { path: 'register/plans', component: SellerPlansComponent },
   { path: 'register/template', component: TemplateSelectionComponent },

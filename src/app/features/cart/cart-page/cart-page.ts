@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HeaderComponent } from '../../../shared/components/header/header';
+import { CartService, CartItem } from '../../../core/services/cart';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-cart-page',
@@ -22,15 +27,17 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatIconModule,
     MatDividerModule,
     MatCheckboxModule,
-    HeaderComponent
+    HeaderComponent,
+    ReactiveFormsModule
   ],
   templateUrl: './cart-page.html',
   styleUrls: ['./cart-page.css']
 })
-export class CartPageComponent implements OnInit {
-  cartItems: any[] = [];
+export class CartPageComponent implements OnInit, OnDestroy {
+  cartItems: CartItem[] = [];
   selectedItems: string[] = [];
   loading = false;
+  private cartSubscription: Subscription = new Subscription();
   
   // Shipping options
   shippingOptions = [
@@ -49,74 +56,50 @@ export class CartPageComponent implements OnInit {
     { code: 'SAVE5', discount: 5, type: 'fixed', minOrder: 20 }
   ];
 
-  constructor(private snackBar: MatSnackBar) {}
+  showOrderForm = false;
+  orderForm: FormGroup;
 
-  ngOnInit() {
-    this.loadCartItems();
+  constructor(
+    private snackBar: MatSnackBar,
+    private authService: AuthService,
+    private cartService: CartService,
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.orderForm = this.fb.group({
+      name: ['', Validators.required],
+      address: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\\+?\d{8,15}$/)]],
+    });
   }
 
-  loadCartItems() {
-    // Mock cart data - replace with service call
-    this.cartItems = [
-      {
-        id: '1',
-        productId: 1,
-        name: 'Collier artisanal en argent',
-        price: 45.99,
-        originalPrice: 59.99,
-        quantity: 1,
-        image: 'assets/images/product1.jpg',
-        seller: 'Marie Créations',
-        sellerId: 1,
-        available: true,
-        maxQuantity: 10
-      },
-      {
-        id: '2',
-        productId: 2,
-        name: 'Vase en céramique fait main',
-        price: 35.00,
-        originalPrice: 35.00,
-        quantity: 2,
-        image: 'assets/images/product2.jpg',
-        seller: 'Atelier Poterie',
-        sellerId: 2,
-        available: true,
-        maxQuantity: 5
-      },
-      {
-        id: '3',
-        productId: 3,
-        name: 'Sac en cuir vintage',
-        price: 89.99,
-        originalPrice: 120.00,
-        quantity: 1,
-        image: 'assets/images/product3.jpg',
-        seller: 'Vintage Style',
-        sellerId: 3,
-        available: false,
-        maxQuantity: 0
-      }
-    ];
-    
-    // Select all available items by default
-    this.selectedItems = this.cartItems
-      .filter(item => item.available)
-      .map(item => item.id);
+  ngOnInit() {
+    this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
+      this.cartItems = items;
+      // Select all available items by default
+      this.selectedItems = this.cartItems
+        .filter(item => item.available)
+        .map(item => item.id);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
   }
 
   updateQuantity(itemId: string, newQuantity: number) {
-    const item = this.cartItems.find(i => i.id === itemId);
-    if (item && newQuantity > 0 && newQuantity <= item.maxQuantity) {
-      item.quantity = newQuantity;
-      this.updateCart();
+    const success = this.cartService.updateQuantity(itemId, newQuantity);
+    if (success) {
+      this.snackBar.open('Quantité mise à jour', 'Fermer', { duration: 2000 });
+    } else {
+      this.snackBar.open('Quantité invalide', 'Fermer', { duration: 2000 });
     }
   }
 
   removeItem(itemId: string) {
-    this.cartItems = this.cartItems.filter(item => item.id !== itemId);
-    this.selectedItems = this.selectedItems.filter(id => id !== itemId);
-    this.updateCart();
+    this.cartService.removeFromCart(itemId);
     this.snackBar.open('Produit retiré du panier', 'Fermer', { duration: 3000 });
   }
 
@@ -146,9 +129,7 @@ export class CartPageComponent implements OnInit {
   }
 
   getSubtotal() {
-    return this.getSelectedItems().reduce((total, item) => {
-      return total + (item.price * item.quantity);
-    }, 0);
+    return this.cartService.getSubtotal(this.selectedItems);
   }
 
   getShippingCost() {
@@ -180,9 +161,7 @@ export class CartPageComponent implements OnInit {
   }
 
   getSavings() {
-    return this.getSelectedItems().reduce((total, item) => {
-      return total + ((item.originalPrice - item.price) * item.quantity);
-    }, 0);
+    return this.cartService.getTotalSavings ? this.cartService.getTotalSavings(this.selectedItems) : 0;
   }
 
   applyCoupon() {
@@ -204,40 +183,63 @@ export class CartPageComponent implements OnInit {
   removeCoupon() {
     this.appliedCoupon = null;
     this.couponCode = '';
+    this.snackBar.open('Code promo retiré', 'Fermer', { duration: 2000 });
   }
 
   updateCart() {
-    // TODO: Call cart service to update cart
-    console.log('Cart updated:', this.cartItems);
+    // Cart is automatically updated via the service
   }
 
   proceedToCheckout() {
     if (this.selectedItems.length === 0) {
-      this.snackBar.open('Veuillez sélectionner au moins un produit', 'Fermer', { duration: 3000 });
+      this.snackBar.open('Veuillez sélectionner au moins un article', 'Fermer', { duration: 3000 });
       return;
     }
-    
-    // TODO: Navigate to checkout page
-    console.log('Proceeding to checkout with items:', this.selectedItems);
+    const user = this.authService.getCurrentUser();
+    if (user && user.role === 'client') {
+      this.showOrderForm = true;
+    } else {
+      this.snackBar.open('Veuillez vous inscrire comme client pour passer une commande.', 'Fermer', { duration: 4000 });
+      this.router.navigate(['/auth/register'], { queryParams: { returnUrl: '/cart' } });
+    }
+  }
+
+  closeOrderForm() {
+    this.showOrderForm = false;
+  }
+
+  submitOrder() {
+    if (this.orderForm.invalid) {
+      this.snackBar.open('Veuillez remplir tous les champs du formulaire.', 'Fermer', { duration: 3000 });
+      return;
+    }
+    // TODO: Send order to backend
+    this.snackBar.open('Commande passée avec succès !', 'Fermer', { duration: 4000 });
+    this.showOrderForm = false;
+    // Optionally clear cart or redirect
   }
 
   continueShopping() {
-    // TODO: Navigate to products page
-    console.log('Continue shopping');
+    // Navigate to products page
+    window.history.back();
   }
 
-  getItemTotal(item: any) {
-    return item.price * item.quantity;
+  getItemTotal(item: CartItem) {
+    return (item.price * item.quantity).toFixed(2);
   }
 
-  getItemSavings(item: any) {
-    return (item.originalPrice - item.price) * item.quantity;
+  getItemSavings(item: CartItem) {
+    const originalPrice = item.originalPrice || item.price;
+    return (originalPrice - item.price) * item.quantity;
   }
 
   removeSelectedItems() {
-    this.cartItems = this.cartItems.filter(item => !this.selectedItems.includes(item.id));
+    if (this.selectedItems.length === 0) {
+      this.snackBar.open('Aucun article sélectionné', 'Fermer', { duration: 2000 });
+      return;
+    }
+    this.cartService.removeMultipleItems(this.selectedItems);
     this.selectedItems = [];
-    this.updateCart();
-    this.snackBar.open('Produits retirés du panier', 'Fermer', { duration: 3000 });
+    this.snackBar.open(`${this.selectedItems.length} article(s) retiré(s) du panier`, 'Fermer', { duration: 3000 });
   }
 } 

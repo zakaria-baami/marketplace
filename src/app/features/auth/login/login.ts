@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { LogoComponent } from '../../../shared/components/logo/logo';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatProgressSpinnerModule,
     MatIconModule,
     MatSnackBarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    LogoComponent
   ]
 })
 export class LoginComponent {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,6 +10,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
+import { LogoComponent } from '../logo/logo';
+// import { CartService } from '../../core/services/cart';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -25,15 +28,17 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     MatFormFieldModule,
     MatDividerModule, 
-    FormsModule
+    FormsModule,
+    LogoComponent
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent {
-  cartItemsCount = 3; // Simulated cart items
+export class HeaderComponent implements OnInit, OnDestroy {
+  cartItemsCount = 0;
   isLoggedIn = false; // Simulated login state
   username = 'Marie Créations'; // Simulated username
+  private cartSubscription: Subscription = new Subscription();
 
   categories = [
     { name: 'Mode', icon: 'checkroom', path: '/categories/mode' },
@@ -47,6 +52,20 @@ export class HeaderComponent {
   ];
 
   searchQuery = '';
+
+  constructor() {} // private cartService: CartService
+
+  ngOnInit() {
+    // this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
+    //   this.cartItemsCount = this.cartService.getItemCount();
+    // });
+  }
+
+  ngOnDestroy() {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
+  }
 
   onSearch() {
     if (this.searchQuery.trim()) {

@@ -141,14 +141,34 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4">
+              <!-- Add to Cart / Remove from Cart Button -->
+              <div *ngIf="!isInCart" class="flex-1">
               <button mat-raised-button 
                       color="primary" 
-                      class="flex-1 bg-orange-500 hover:bg-orange-600 py-3"
+                        class="w-full bg-orange-500 hover:bg-orange-600 py-3"
                       [disabled]="product.stock === 0"
                       (click)="addToCart()">
                 <mat-icon class="mr-2">shopping_cart</mat-icon>
                 Ajouter au panier
               </button>
+              </div>
+              
+              <div *ngIf="isInCart" class="flex-1">
+                <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div class="flex items-center">
+                    <mat-icon class="text-green-600 mr-2">check_circle</mat-icon>
+                    <span class="text-green-800 font-medium">Dans le panier ({{ cartQuantity }})</span>
+                  </div>
+                  <button 
+                    mat-icon-button 
+                    color="warn" 
+                    (click)="removeFromCart()"
+                    matTooltip="Retirer du panier">
+                    <mat-icon>remove_shopping_cart</mat-icon>
+                  </button>
+                </div>
+              </div>
+              
               <button mat-raised-button 
                       class="flex-1 bg-gray-900 text-white hover:bg-gray-800 py-3"
                       [disabled]="product.stock === 0"

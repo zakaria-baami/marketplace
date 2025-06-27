@@ -1,0 +1,64 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="w-full" style="max-width:80vw;">
+    <div class="p-8 bg-white rounded-xl shadow-lg">
+      <!-- Back to plans button -->
+      <div class="mb-4 flex items-center">
+        <button mat-stroked-button color="primary" [routerLink]="['/auth/seller-plans']" class="mr-4">
+          <mat-icon class="mr-1">arrow_back</mat-icon>
+          Retour aux plans
+        </button>
+        <span *ngIf="planName" class="ml-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-semibold text-sm">
+          Plan choisi : {{ planName }}
+        </span>
+      </div>
+      <div class="flex flex-col items-center mb-8">
+        <app-logo></app-logo>
+        <h1 class="text-2xl font-bold text-orange-600 mb-1">Créer un compte vendeur</h1>
+        <p class="text-gray-500">Inscrivez-vous pour vendre sur Marketplace</p>
+      </div>
+      <form [formGroup]="sellerForm" (ngSubmit)="onSubmit()" autocomplete="off">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1" for="nom">Nom complet</label>
+          <input id="nom" type="text" formControlName="nom" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre nom complet">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1" for="email">Email</label>
+          <input id="email" type="email" formControlName="email" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre email">
+        </div>
+        <div class="mb-4 relative">
+          <label class="block text-gray-700 font-medium mb-1" for="password">Mot de passe</label>
+          <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10" placeholder="Mot de passe">
+          <button type="button" (click)="showPassword = !showPassword" class="absolute right-3 top-9 text-gray-400 hover:text-orange-500 focus:outline-none">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1" for="confirmPassword">Confirmer le mot de passe</label>
+          <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword" formControlName="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Confirmez le mot de passe">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1" for="numero_fiscal">Numéro fiscal (optionnel)</label>
+          <input id="numero_fiscal" type="text" formControlName="numero_fiscal" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre numéro fiscal ou SIRET">
+        </div>
+        <div class="mb-8 flex items-start">
+          <input id="acceptTerms" type="checkbox" formControlName="acceptTerms" class="mt-1 mr-2">
+          <label for="acceptTerms" class="text-gray-700 select-none">J'accepte les <a href="#" class="text-orange-600 hover:text-orange-700 underline">conditions d'utilisation</a> et la <a href="#" class="text-orange-600 hover:text-orange-700 underline">politique de confidentialité</a> de Marketplace</label>
+        </div>
+        <button mat-raised-button color="primary" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded transition-all" [disabled]="sellerForm.invalid || loading">
+          <span *ngIf="!loading">Créer mon compte vendeur</span>
+          <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+        </button>
+      </form>
+      <div class="mt-6 text-center">
+        <button mat-button color="accent" [routerLink]="['/auth/register']" class="text-orange-600 hover:underline">
+          Créer un compte acheteur
+        </button>
+      </div>
+      <div class="mt-6 text-center">
+        <button mat-button color="accent" [routerLink]="['/auth/login']" class="text-orange-600 hover:underline">
+          Déjà inscrit ? Se connecter
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 
