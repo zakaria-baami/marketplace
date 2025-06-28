@@ -1,38 +1,27 @@
-<app-header></app-header>
-
 <div class="min-h-screen bg-gray-50">
-  <!-- Search Header -->
-  <div class="bg-white border-b sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex items-center space-x-4">
-        <!-- Search Bar -->
-        <div class="flex-1 max-w-2xl">
-          <div class="relative">
-            <input 
-              type="text" 
-              [(ngModel)]="searchQuery"
-              (input)="applyFilters()"
-              placeholder="Search for anything..."
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-            <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+  <app-role-header></app-role-header>
+
+  <!-- Categories Banner -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Toutes les catégories</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div *ngFor="let category of categories" 
+             class="group cursor-pointer"
+             (click)="selectCategory(category.nom)">
+          <div class="bg-gray-50 rounded-lg p-4 text-center transition-all duration-200 hover:bg-orange-50 hover:shadow-md">
+            <div class="w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center"
+                 [style.background-color]="category.couleur || '#007bff'">
+              <mat-icon class="text-white text-sm">{{ getCategoryIcon(category.nom) }}</mat-icon>
+            </div>
+            <h3 class="text-sm font-medium text-gray-900 group-hover:text-orange-600">
+              {{ category.nom }}
+            </h3>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ category.nombre_produits || 0 }} produit{{ (category.nombre_produits || 0) > 1 ? 's' : '' }}
+            </p>
           </div>
         </div>
-        
-        <!-- Sort Dropdown -->
-        <mat-select [(ngModel)]="sortBy" (selectionChange)="applyFilters()" class="min-w-[150px]">
-          <mat-option value="relevance">Relevance</mat-option>
-          <mat-option value="price-low">Price: Low to High</mat-option>
-          <mat-option value="price-high">Price: High to Low</mat-option>
-          <mat-option value="rating">Highest Rated</mat-option>
-          <mat-option value="newest">Newest</mat-option>
-          <mat-option value="popular">Most Popular</mat-option>
-        </mat-select>
-        
-        <!-- Filter Toggle -->
-        <button mat-button class="flex items-center space-x-2">
-          <mat-icon>tune</mat-icon>
-          <span>Filters</span>
-        </button>
       </div>
     </div>
   </div>
@@ -49,12 +38,26 @@
             <h4 class="font-medium text-gray-700 mb-3">Categories</h4>
             <div class="space-y-2">
               <div *ngFor="let category of categories" 
-                   class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded"
-                   (click)="selectCategory(category.name)">
-                <span class="text-sm" [class.text-orange-600]="selectedCategory === category.name">
-                  {{ category.name }}
+                   class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 transition-all duration-200"
+                   (click)="selectCategory(category.nom)"
+                   [class.bg-orange-50]="selectedCategory === category.nom"
+                   [class.border-orange-200]="selectedCategory === category.nom">
+                <div class="flex items-center space-x-3">
+                  <div class="w-3 h-3 rounded-full" 
+                       [style.background-color]="category.couleur || '#007bff'"></div>
+                  <div>
+                    <span class="text-sm font-medium" 
+                          [class.text-orange-600]="selectedCategory === category.nom">
+                      {{ category.nom }}
+                    </span>
+                    <div *ngIf="category.description" class="text-xs text-gray-500 mt-1">
+                      {{ category.description }}
+                    </div>
+                  </div>
+                </div>
+                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {{ category.nombre_produits || 0 }}
                 </span>
-                <span class="text-xs text-gray-500">{{ category.count }}</span>
               </div>
             </div>
           </div>

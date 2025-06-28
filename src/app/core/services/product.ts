@@ -20,8 +20,7 @@ export interface Seller {
 export interface Boutique {
     id: number;
     nom: string;
-    vendeur: Seller;
-    // Add other boutique properties
+    grade: string;
 }
 
 export interface Product {
@@ -34,7 +33,33 @@ export interface Product {
   images: ProductImage[];
   categorie: Category;
   boutique: Boutique;
+  prix_original?: number;
   // Add any other fields from your model, e.g., originalPrice, rating, etc.
+}
+
+export interface ProductResponse {
+  success: boolean;
+  produits: Product[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  categorie?: {
+    id: number;
+    nom: string;
+    description: string;
+  };
+  message?: string;
+}
+
+export interface SingleProductResponse {
+  success: boolean;
+  produit: Product;
+  message?: string;
 }
 
 @Injectable({
@@ -56,15 +81,45 @@ export class ProductService {
       httpParams = httpParams.set('boutiqueId', params.boutiqueId.toString());
     }
 
-    return this.http.get<{data: Product[]}>(this.apiUrl, { params: httpParams }).pipe(
-      map(response => response.data),
+    return this.http.get<ProductResponse>(this.apiUrl, { params: httpParams }).pipe(
+      map(response => {
+        if (response.success) {
+          return response.produits;
+        } else {
+          throw new Error(response.message || 'Erreur lors de la récupération des produits');
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // Récupérer les produits d'une catégorie spécifique
+  getProductsByCategory(categoryId: number, options: any = {}): Observable<ProductResponse> {
+    let httpParams = new HttpParams();
+    
+    // Ajouter les options de filtrage et pagination
+    Object.keys(options).forEach(key => {
+      if (options[key] !== undefined && options[key] !== null) {
+        httpParams = httpParams.set(key, options[key].toString());
+      }
+    });
+
+    return this.http.get<ProductResponse>(`${environment.apiUrl}/categorie/${categoryId}/produits`, { 
+      params: httpParams 
+    }).pipe(
       catchError(this.handleError)
     );
   }
 
   getProductById(id: string | number): Observable<Product> {
-    return this.http.get<{data: Product}>(`${this.apiUrl}/${id}`).pipe(
-      map(response => response.data),
+    return this.http.get<SingleProductResponse>(`${this.apiUrl}/${id}`).pipe(
+      map(response => {
+        if (response.success) {
+          return response.produit;
+        } else {
+          throw new Error(response.message || 'Produit non trouvé');
+        }
+      }),
       catchError(this.handleError)
     );
   }
@@ -72,15 +127,27 @@ export class ProductService {
   // --- Write Operations for Sellers ---
 
   createProduct(product: Partial<Product>): Observable<Product> {
-    return this.http.post<{data: Product}>(this.apiUrl, product).pipe(
-      map(response => response.data),
+    return this.http.post<SingleProductResponse>(this.apiUrl, product).pipe(
+      map(response => {
+        if (response.success) {
+          return response.produit;
+        } else {
+          throw new Error(response.message || 'Erreur lors de la création du produit');
+        }
+      }),
       catchError(this.handleError)
     );
   }
 
   updateProduct(id: number, product: Partial<Product>): Observable<Product> {
-    return this.http.put<{data: Product}>(`${this.apiUrl}/${id}`, product).pipe(
-      map(response => response.data),
+    return this.http.put<SingleProductResponse>(`${this.apiUrl}/${id}`, product).pipe(
+      map(response => {
+        if (response.success) {
+          return response.produit;
+        } else {
+          throw new Error(response.message || 'Erreur lors de la mise à jour du produit');
+        }
+      }),
       catchError(this.handleError)
     );
   }

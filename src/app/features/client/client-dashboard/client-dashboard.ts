@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HeaderComponent } from '../../../shared/components/header/header';
+import { UserService, ClientProfile, ClientOrder } from '../../../core/services/user';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -25,23 +26,33 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatTabsModule,
     MatDividerModule,
     MatChipsModule,
-    MatProgressBarModule,
-    HeaderComponent
+    MatProgressBarModule
   ],
   templateUrl: './client-dashboard.html',
   styleUrls: ['./client-dashboard.css']
 })
 export class ClientDashboardComponent implements OnInit {
   activeTab = 0;
-  user: any = null;
-  orders: any[] = [];
+  user: ClientProfile | null = null;
+  orders: ClientOrder[] = [];
   favorites: any[] = [];
   addresses: any[] = [];
   loading = false;
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private userService: UserService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    // Vérifier si l'utilisateur est connecté
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    
     this.loadUserData();
     this.loadOrders();
     this.loadFavorites();
@@ -49,69 +60,38 @@ export class ClientDashboardComponent implements OnInit {
   }
 
   loadUserData() {
-    // Mock user data - replace with service call
-    this.user = {
-      id: 1,
-      firstName: 'Marie',
-      lastName: 'Dupont',
-      email: 'marie.dupont@email.com',
-      phone: '+33 6 12 34 56 78',
-      avatar: 'MD',
-      memberSince: '2023',
-      totalOrders: 15,
-      totalSpent: 1250.50,
-      loyaltyPoints: 1250,
-      nextLevel: 2000,
-      level: 'Bronze',
-      levelProgress: 62.5
-    };
+    this.loading = true;
+    this.userService.getClientProfile().subscribe({
+      next: (clientProfile: ClientProfile) => {
+        this.user = clientProfile;
+        console.log('✅ Profil client chargé:', clientProfile);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur chargement profil client:', error);
+        this.snackBar.open('Erreur lors du chargement du profil', 'Fermer', { duration: 3000 });
+        this.loading = false;
+      }
+    });
   }
 
   loadOrders() {
-    // Mock orders data - replace with service call
-    this.orders = [
-      {
-        id: 'ORD-001',
-        date: '2024-01-15',
-        status: 'delivered',
-        statusText: 'Livrée',
-        total: 89.99,
-        items: [
-          { name: 'Collier artisanal en argent', quantity: 1, price: 45.99 },
-          { name: 'Vase en céramique fait main', quantity: 1, price: 44.00 }
-        ],
-        seller: 'Marie Créations',
-        trackingNumber: 'TRK123456789',
-        estimatedDelivery: '2024-01-18'
+    this.userService.getClientOrders().subscribe({
+      next: (response) => {
+        if (response.success && response.commandes) {
+          this.orders = response.commandes;
+          console.log('✅ Commandes client chargées:', response.commandes);
+        } else {
+          this.orders = [];
+          console.log('ℹ️ Aucune commande trouvée');
+        }
       },
-      {
-        id: 'ORD-002',
-        date: '2024-01-10',
-        status: 'shipped',
-        statusText: 'Expédiée',
-        total: 156.50,
-        items: [
-          { name: 'Sac en cuir vintage', quantity: 1, price: 89.99 },
-          { name: 'Tableau aquarelle original', quantity: 1, price: 66.51 }
-        ],
-        seller: 'Vintage Style',
-        trackingNumber: 'TRK987654321',
-        estimatedDelivery: '2024-01-13'
-      },
-      {
-        id: 'ORD-003',
-        date: '2024-01-05',
-        status: 'processing',
-        statusText: 'En cours',
-        total: 35.00,
-        items: [
-          { name: 'Bracelet personnalisé', quantity: 1, price: 35.00 }
-        ],
-        seller: 'PersonalizedGifts',
-        trackingNumber: null,
-        estimatedDelivery: '2024-01-12'
+      error: (error) => {
+        console.error('❌ Erreur chargement commandes:', error);
+        this.orders = [];
+        this.snackBar.open('Erreur lors du chargement des commandes', 'Fermer', { duration: 3000 });
       }
-    ];
+    });
   }
 
   loadFavorites() {
@@ -187,22 +167,42 @@ export class ClientDashboardComponent implements OnInit {
 
   getOrderStatusColor(status: string): string {
     switch (status) {
-      case 'delivered': return 'text-green-600';
-      case 'shipped': return 'text-blue-600';
-      case 'processing': return 'text-orange-600';
-      case 'cancelled': return 'text-red-600';
+      case 'livre': return 'text-green-600';
+      case 'expedie': return 'text-blue-600';
+      case 'valide': return 'text-orange-600';
+      case 'annule': return 'text-red-600';
+      case 'actif': return 'text-gray-600';
       default: return 'text-gray-600';
     }
   }
 
   getOrderStatusIcon(status: string): string {
     switch (status) {
-      case 'delivered': return 'check_circle';
-      case 'shipped': return 'local_shipping';
-      case 'processing': return 'pending';
-      case 'cancelled': return 'cancel';
+      case 'livre': return 'check_circle';
+      case 'expedie': return 'local_shipping';
+      case 'valide': return 'pending';
+      case 'annule': return 'cancel';
+      case 'actif': return 'shopping_cart';
       default: return 'help';
     }
+  }
+
+  getOrderStatusText(status: string): string {
+    switch (status) {
+      case 'livre': return 'Livrée';
+      case 'expedie': return 'Expédiée';
+      case 'valide': return 'Validée';
+      case 'annule': return 'Annulée';
+      case 'actif': return 'En cours';
+      default: return 'Inconnu';
+    }
+  }
+
+  getProgressValue(): number {
+    if (!this.user?.statistiques?.total_depense) return 0;
+    // Calculer une progression basée sur les dépenses (exemple: 1000€ = 100%)
+    const maxValue = 1000; // 1000€ = 100%
+    return Math.min((this.user.statistiques.total_depense / maxValue) * 100, 100);
   }
 
   getLevelColor(level: string): string {
@@ -225,19 +225,18 @@ export class ClientDashboardComponent implements OnInit {
     this.snackBar.open('Produit ajouté au panier', 'Fermer', { duration: 3000 });
   }
 
-  viewOrder(orderId: string) {
+  viewOrder(orderId: number) {
     // TODO: Navigate to order detail page
     console.log('View order:', orderId);
   }
 
-  trackOrder(orderId: string) {
+  trackOrder(orderId: number) {
     // TODO: Navigate to tracking page
     console.log('Track order:', orderId);
   }
 
   editProfile() {
-    // TODO: Navigate to profile edit page
-    console.log('Edit profile');
+    this.router.navigate(['/client/edit-profile']);
   }
 
   addAddress() {
@@ -266,5 +265,11 @@ export class ClientDashboardComponent implements OnInit {
       stars.push(i <= rating);
     }
     return stars;
+  }
+
+  isClientConnected(): boolean {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    return !!token && role === 'client';
   }
 } 

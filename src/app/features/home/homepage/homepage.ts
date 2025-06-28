@@ -5,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
+import { HomeHeaderComponent } from '../../../shared/components/home-header/home-header';
 
 @Component({
   selector: 'app-homepage',
@@ -18,8 +18,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     MatCardModule, 
     MatIconModule, 
     FormsModule, 
-    HeaderComponent,
-    ProductCardComponent
+    ProductCardComponent,
+    HomeHeaderComponent
   ],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']

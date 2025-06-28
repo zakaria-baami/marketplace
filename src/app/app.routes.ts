@@ -27,7 +27,7 @@ export const routes: Routes = [
   
   // Category page
   {
-    path: 'category/:categorySlug',
+    path: 'categories/:id',
     loadComponent: () => import('./features/categories/category-page/category-page').then(m => m.CategoryPageComponent)
   },
   

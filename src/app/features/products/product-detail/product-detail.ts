@@ -9,12 +9,16 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductService } from '../../../core/services/product';
 import { CartService } from '../../../core/services/cart';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
+import { Product } from '../../../core/services/product';
+import { AuthService } from '../../../core/services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-detail',
@@ -30,8 +34,9 @@ import { Subscription } from 'rxjs';
     MatDividerModule,
     MatChipsModule,
     FormsModule,
-    HeaderComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+    ProductCardComponent
   ],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.css']
@@ -46,12 +51,15 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   isInCart = false;
   cartQuantity = 0;
   private cartSubscription: Subscription = new Subscription();
+  similarProducts: Product[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private cartService: CartService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +91,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.product = data;
         this.loading = false;
         this.updateCartStatus();
-        // ... maybe call other methods to load related products, etc.
+        // Charger les produits similaires de la même catégorie
+        this.loadSimilarProducts();
       },
       error: (err) => {
         this.error = 'Failed to load product details.';
@@ -93,83 +102,42 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadSimilarProducts(): void {
+    this.similarProducts = [];
+    if (this.product && this.product.categorie && this.product.categorie.id) {
+      const catId = this.product.categorie.id;
+      this.productService.getProductsByCategory(catId, { limit: 12 }).subscribe({
+        next: (res) => {
+          // On s'assure que chaque produit a bien un objet categorie
+          const produits = (res.produits || []).map(p => ({
+            ...p,
+            categorie: p.categorie || { id: (p as any).categorie_id }
+          }));
+
+          this.similarProducts = produits.filter(p =>
+            p.id !== this.product.id &&
+            p.categorie &&
+            this.product.categorie &&
+            p.categorie.id === this.product.categorie.id
+          );
+          console.log('Produits similaires:', this.similarProducts);
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des produits similaires:', err);
+          this.similarProducts = [];
+        }
+      });
+    } else {
+      this.similarProducts = [];
+    }
+  }
+
   updateCartStatus() {
     if (this.product) {
       this.isInCart = this.cartService.isInCart(this.product.id);
       this.cartQuantity = this.cartService.getItemQuantity(this.product.id);
     }
   }
-
-  reviews = [
-    {
-      id: 1,
-      author: 'Sophie M.',
-      avatar: 'SM',
-      rating: 5,
-      date: '2024-06-15',
-      title: 'Magnifique collier !',
-      content: 'Exactement comme sur les photos. La qualité est au rendez-vous et l\'expédition a été très rapide. Je recommande vivement !',
-      helpful: 12,
-      images: ['/api/placeholder/100/100']
-    },
-    {
-      id: 2,
-      author: 'Emma L.',
-      avatar: 'EL',
-      rating: 5,
-      date: '2024-06-10',
-      title: 'Parfait pour un cadeau',
-      content: 'J\'ai offert ce collier à ma sœur et elle l\'adore. L\'emballage était très soigné.',
-      helpful: 8,
-      images: []
-    },
-    {
-      id: 3,
-      author: 'Claire D.',
-      avatar: 'CD',
-      rating: 4,
-      date: '2024-06-05',
-      title: 'Très joli',
-      content: 'Le collier est très beau, juste un peu plus petit que je ne l\'imaginais mais c\'est parfait finalement.',
-      helpful: 5,
-      images: []
-    }
-  ];
-
-  relatedProducts = [
-    {
-      id: 2,
-      name: 'Boucles d\'oreilles assorties',
-      price: 29.99,
-      image: '/api/placeholder/200/200',
-      rating: 4.7,
-      seller: 'Marie Créations'
-    },
-    {
-      id: 3,
-      name: 'Bracelet argent minimaliste',
-      price: 35.99,
-      image: '/api/placeholder/200/200',
-      rating: 4.6,
-      seller: 'Marie Créations'
-    },
-    {
-      id: 4,
-      name: 'Pendentif étoile',
-      price: 39.99,
-      image: '/api/placeholder/200/200',
-      rating: 4.9,
-      seller: 'Art & Bijoux'
-    },
-    {
-      id: 5,
-      name: 'Chaîne argent premium',
-      price: 42.99,
-      image: '/api/placeholder/200/200',
-      rating: 4.8,
-      seller: 'Silver Dreams'
-    }
-  ];
 
   selectImage(index: number) {
     this.selectedImageIndex = index;
@@ -198,9 +166,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   buyNow() {
-    console.log('Buying now');
-    // TODO: Implement buy now functionality
-    this.snackBar.open('Fonctionnalité d\'achat direct à venir', 'Fermer', { duration: 2000 });
+    if (this.authService.hasValidToken()) {
+      // Rediriger vers le panier
+      this.router.navigate(['/cart']);
+    } else {
+      // Rediriger vers la page de login
+      this.router.navigate(['/auth/login']);
+    }
   }
 
   contactSeller() {
@@ -225,13 +197,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  reportReviewHelpful(reviewId: number) {
-    const review = this.reviews.find(r => r.id === reviewId);
-    if (review) {
-      review.helpful++;
-    }
-  }
-
   getStockStatus() {
     if (this.product.stock === 0) {
       return { text: 'Rupture de stock', color: 'text-red-600', bgColor: 'bg-red-100' };
@@ -249,5 +214,22 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   getSavingsPercentage(): number {
     if (!this.product || !this.product.originalPrice) return 0;
     return Math.round(((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100);
+  }
+
+  getDiscount(product: any): number {
+    if (!product.prix_original || product.prix_original <= product.prix) return 0;
+    return Math.round(100 * (product.prix_original - product.prix) / product.prix_original);
+  }
+
+  getStockPercent(product: any): number {
+    // Suppose que le stock max est 100 pour l'exemple, adapte selon ta logique
+    const maxStock = 100;
+    return product.stock ? Math.min(100, Math.round((product.stock / maxStock) * 100)) : 0;
+  }
+
+  getStars(product: any): number[] {
+    // Suppose que product.note_moyenne est sur 5
+    const rating = Math.round(product.note_moyenne || 0);
+    return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0);
   }
 }

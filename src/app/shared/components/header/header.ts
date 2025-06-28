@@ -1,17 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { LogoComponent } from '../logo/logo';
-// import { CartService } from '../../core/services/cart';
+import { Category, CategoryService } from '../../../core/services/category';
+import { CartService } from '../../../core/services/cart';
+import { AuthService, User } from '../../../core/services/auth';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -19,12 +21,12 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, 
-    RouterModule, 
+    RouterModule,
+    HttpClientModule,
     MatToolbarModule, 
     MatButtonModule, 
     MatIconModule, 
     MatMenuModule, 
-    MatBadgeModule,
     MatInputModule,
     MatFormFieldModule,
     MatDividerModule, 
@@ -36,78 +38,152 @@ import { Subscription } from 'rxjs';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   cartItemsCount = 0;
-  isLoggedIn = false; // Simulated login state
-  username = 'Marie Créations'; // Simulated username
+  isLoggedIn = false;
+  username = '';
+  userRole: string | null = null;
   private cartSubscription: Subscription = new Subscription();
+  private userSubscription: Subscription = new Subscription();
 
-  categories = [
-    { name: 'Mode', icon: 'checkroom', path: '/categories/mode' },
-    { name: 'Maison & Décoration', icon: 'home', path: '/categories/maison' },
-    { name: 'Bijoux & Accessoires', icon: 'diamond', path: '/categories/bijoux' },
-    { name: 'Art & Créations', icon: 'palette', path: '/categories/art' },
-    { name: 'Vintage', icon: 'history', path: '/categories/vintage' },
-    { name: 'Jouets & Enfants', icon: 'toys', path: '/categories/jouets' },
-    { name: 'Beauté & Bien-être', icon: 'spa', path: '/categories/beaute' },
-    { name: 'Papeterie', icon: 'edit', path: '/categories/papeterie' },
-  ];
+  categories: Category[] = [];
+  loading = false;
+  showMobileSearch = false;
 
   searchQuery = '';
 
-  constructor() {} // private cartService: CartService
+  constructor(
+    private categoryService: CategoryService,
+    private cartService: CartService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    // this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
-    //   this.cartItemsCount = this.cartService.getItemCount();
-    // });
+    this.loadCategories();
+    this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
+      this.cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
+    });
+    this.userSubscription = this.authService.currentUser.subscribe(user => {
+      this.isLoggedIn = !!user;
+      this.username = user ? user.nom : '';
+      this.userRole = user ? user.role : null;
+    });
   }
 
   ngOnDestroy() {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
+
+  isClient(): boolean {
+    return this.userRole === 'client';
+  }
+
+  isLoggedOut(): boolean {
+    return !this.isLoggedIn;
+  }
+
+  // Optionnel : détecter la page d'accueil
+  isHomePage(): boolean {
+    return this.router.url === '/';
+  }
+
+  loadCategories() {
+    this.loading = true;
+    this.categoryService.getCategories().subscribe({
+      next: (categories: Category[]) => {
+        this.categories = categories;
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement des catégories:', error);
+        this.loading = false;
+        // Utiliser des catégories par défaut en cas d'erreur
+        this.categories = [
+          { id: 1, nom: 'Mode', description: '', image: '', couleur: '#007bff', statut: 'active', ordre_affichage: 1 },
+          { id: 2, nom: 'Maison & Décoration', description: '', image: '', couleur: '#28a745', statut: 'active', ordre_affichage: 2 },
+          { id: 3, nom: 'Bijoux & Accessoires', description: '', image: '', couleur: '#ffc107', statut: 'active', ordre_affichage: 3 },
+          { id: 4, nom: 'Art & Créations', description: '', image: '', couleur: '#dc3545', statut: 'active', ordre_affichage: 4 },
+          { id: 5, nom: 'Vintage', description: '', image: '', couleur: '#6f42c1', statut: 'active', ordre_affichage: 5 },
+          { id: 6, nom: 'Jouets & Enfants', description: '', image: '', couleur: '#fd7e14', statut: 'active', ordre_affichage: 6 }
+        ];
+      }
+    });
+  }
+
+  toggleMobileSearch(): void {
+    this.showMobileSearch = !this.showMobileSearch;
   }
 
   onSearch() {
     if (this.searchQuery.trim()) {
-      console.log('Searching for:', this.searchQuery);
-      // TODO: Implement search navigation
-      // this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
+      this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
+      this.showMobileSearch = false; // Hide mobile search after search
     }
   }
 
   onLogin() {
-    console.log('Login clicked');
-    // TODO: Navigate to login page
-    // this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   onRegister() {
-    console.log('Register clicked');
-    // TODO: Navigate to register page
-    // this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/register/role']);
+  }
+
+  onCategories() {
+    this.router.navigate(['/categories']);
   }
 
   onProfile() {
     console.log('Profile clicked');
     // TODO: Navigate to profile page
+    this.router.navigate(['/client/profile']);
   }
 
   onLogout() {
     console.log('Logout clicked');
     this.isLoggedIn = false;
     // TODO: Implement logout logic
+    this.router.navigate(['/auth/login']);
   }
 
   onCart() {
     console.log('Cart clicked');
     // TODO: Navigate to cart page
-    // this.router.navigate(['/cart']);
+    this.router.navigate(['/cart']);
   }
 
-  onCategoryClick(category: any) {
-    console.log('Category clicked:', category.name);
-    // TODO: Navigate to category page
-    // If you want to support dynamic navigation:
-    // this.router.navigate(['/categories', category.slug]);
+  onCategoryClick(category: Category) {
+    console.log('Category clicked:', category.nom);
+    this.router.navigate(['/categories', category.id]);
+  }
+
+  // Méthode pour obtenir l'icône par défaut basée sur le nom de la catégorie
+  getCategoryIcon(categoryName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'mode': 'checkroom',
+      'maison': 'home',
+      'bijoux': 'diamond',
+      'art': 'palette',
+      'vintage': 'history',
+      'jouets': 'toys',
+      'beaute': 'spa',
+      'papeterie': 'edit',
+      'décoration': 'home',
+      'accessoires': 'diamond',
+      'créations': 'palette',
+      'enfants': 'toys'
+    };
+
+    const lowerName = categoryName.toLowerCase();
+    for (const [key, icon] of Object.entries(iconMap)) {
+      if (lowerName.includes(key)) {
+        return icon;
+      }
+    }
+    return 'category'; // Icône par défaut
   }
 }

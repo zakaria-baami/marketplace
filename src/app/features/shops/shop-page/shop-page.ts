@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
 
 @Component({
@@ -30,7 +29,6 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     MatSelectModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
-    HeaderComponent,
     ProductCardComponent
   ],
   templateUrl: './shop-page.html',
@@ -153,5 +151,11 @@ export class ShopPageComponent implements OnInit {
       stars.push(i <= rating);
     }
     return stars;
+  }
+
+  isClientConnected(): boolean {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    return !!token && role === 'client';
   }
 } 

@@ -84,58 +84,60 @@ export class SellerRegisterComponent {
   }
 
   onSubmit() {
-    if (this.sellerForm.valid && this.acceptedTerms) {
-      this.loading = true;
-      
-      const formData = this.sellerForm.value;
-      const sellerData: SellerRegistrationData = {
-        nom: formData.nom.trim(),
-        email: formData.email.toLowerCase(),
-        password: formData.password,
-        role: 'vendeur' as const,
-        numero_fiscal: formData.numero_fiscal || null
-      };
+  if (this.sellerForm.valid) { // ✅ Supprimez "&& this.acceptedTerms"
+    this.loading = true;
+    
+    const formData = this.sellerForm.value;
+    const sellerData: SellerRegistrationData = {
+      nom: formData.nom.trim(),
+      email: formData.email.toLowerCase(),
+      password: formData.password,
+      role: 'vendeur' as const,
+      numero_fiscal: formData.numero_fiscal || null
+    };
 
-      this.authService.registerSeller(sellerData).subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          this.snackBar.open(
-            'Compte vendeur créé avec succès ! Choisissez un thème pour votre boutique.', 
-            'Fermer', 
-            { duration: 5000, panelClass: 'snackbar-success' }
-          );
-          this.router.navigate(['/auth/register/template'], { queryParams: { plan: this.selectedPlan } });
-        },
-        error: (error: any) => {
-          this.loading = false;
-          let errorMessage = 'Erreur lors de la création du compte vendeur';
-          
-          if (error?.error?.message) {
-            if (Array.isArray(error.error.message)) {
-              errorMessage = error.error.message.map((e: any) => e.msg || e).join(' | ');
-            } else {
-              errorMessage = error.error.message;
-            }
-          } else if (error?.error?.error) {
-            errorMessage = error.error.error;
+    this.authService.registerSeller(sellerData).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.snackBar.open(
+          'Compte vendeur créé avec succès ! Choisissez un thème pour votre boutique.', 
+          'Fermer', 
+          { duration: 5000, panelClass: 'snackbar-success' }
+        );
+        this.router.navigate(['/auth/register/template'], { queryParams: { plan: this.selectedPlan } });
+      },
+      error: (error: any) => {
+        this.loading = false;
+        let errorMessage = 'Erreur lors de la création du compte vendeur';
+        
+        if (error?.error?.message) {
+          if (Array.isArray(error.error.message)) {
+            errorMessage = error.error.message.map((e: any) => e.msg || e).join(' | ');
+          } else {
+            errorMessage = error.error.message;
           }
-          
-          this.snackBar.open(errorMessage, 'Fermer', { 
-            duration: 5000, 
-            panelClass: 'snackbar-error' 
-          });
+        } else if (error?.error?.error) {
+          errorMessage = error.error.error;
         }
-      });
-    } else {
-      this.sellerForm.markAllAsTouched();
-      if (!this.acceptedTerms) {
-        this.snackBar.open('Veuillez accepter les conditions d\'utilisation', 'Fermer', { 
-          duration: 3000, 
+        
+        this.snackBar.open(errorMessage, 'Fermer', { 
+          duration: 5000, 
           panelClass: 'snackbar-error' 
         });
       }
+    });
+  } else {
+    this.sellerForm.markAllAsTouched();
+    
+    // ✅ Vérifiez avec le FormControl
+    if (this.sellerForm.get('acceptTerms')?.value === false) {
+      this.snackBar.open('Veuillez accepter les conditions d\'utilisation', 'Fermer', { 
+        duration: 3000, 
+        panelClass: 'snackbar-error' 
+      });
     }
   }
+}
 
   getFieldError(fieldName: string): string {
     const field = this.sellerForm.get(fieldName);

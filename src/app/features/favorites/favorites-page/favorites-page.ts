@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
 
 @Component({
@@ -21,7 +20,6 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     MatIconModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
-    HeaderComponent,
     ProductCardComponent
   ],
   templateUrl: './favorites-page.html',

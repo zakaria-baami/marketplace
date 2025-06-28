@@ -27,7 +27,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
     MatIconModule,
     MatDividerModule,
     MatCheckboxModule,
-    HeaderComponent,
     ReactiveFormsModule
   ],
   templateUrl: './cart-page.html',

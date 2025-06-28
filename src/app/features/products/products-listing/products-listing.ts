@@ -11,9 +11,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductService, Product } from '../../../core/services/product';
+import { CategoryService, Category } from '../../../core/services/category';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
+import { LogoComponent } from '../../../shared/components/logo/logo';
+import { CartService } from '../../../core/services/cart';
+import { RoleHeaderComponent } from '../../../shared/components/role-header/role-header';
 
 @Component({
   selector: 'app-products-listing',
@@ -31,8 +34,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     MatSelectModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
-    HeaderComponent,
-    ProductCardComponent
+    ProductCardComponent,
+    RoleHeaderComponent
   ],
   templateUrl: './products-listing.html',
   styleUrls: ['./products-listing.css']
@@ -40,9 +43,10 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
 export class ProductsListingComponent implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
-  categories: any[] = [];
+  categories: Category[] = [];
   loading = true;
   error: string | null = null;
+  cartItemsCount = 0;
   
   // Filters
   selectedCategory = '';
@@ -67,13 +71,18 @@ export class ProductsListingComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private cartService: CartService
   ) {}
 
   ngOnInit() {
     this.loadCategories();
     this.loadProducts();
     this.setupRouteParams();
+    this.cartService.cartItems$.subscribe(items => {
+      this.cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
+    });
   }
 
   setupRouteParams() {
@@ -85,17 +94,26 @@ export class ProductsListingComponent implements OnInit {
   }
 
   loadCategories() {
-    // Mock data - replace with API call
-    this.categories = [
-      { id: 1, name: 'Jewelry & Accessories', slug: 'jewelry-accessories', count: 1250 },
-      { id: 2, name: 'Clothing & Shoes', slug: 'clothing-shoes', count: 890 },
-      { id: 3, name: 'Home & Living', slug: 'home-living', count: 2100 },
-      { id: 4, name: 'Wedding & Party', slug: 'wedding-party', count: 450 },
-      { id: 5, name: 'Toys & Entertainment', slug: 'toys-entertainment', count: 780 },
-      { id: 6, name: 'Art & Collectibles', slug: 'art-collectibles', count: 1200 },
-      { id: 7, name: 'Craft Supplies & Tools', slug: 'craft-supplies-tools', count: 650 },
-      { id: 8, name: 'Vintage', slug: 'vintage', count: 320 }
-    ];
+    this.categoryService.getCategoriesWithStats().subscribe({
+      next: (data: Category[]) => {
+        this.categories = data;
+        console.log('✅ Catégories chargées:', data);
+      },
+      error: (err: any) => {
+        console.error('❌ Erreur chargement catégories:', err);
+        // Fallback vers les catégories sans stats
+        this.categoryService.getCategories().subscribe({
+          next: (fallbackData: Category[]) => {
+            this.categories = fallbackData;
+            console.log('✅ Catégories chargées (fallback):', fallbackData);
+          },
+          error: (fallbackErr: any) => {
+            this.error = 'Failed to load categories. Please try again later.';
+            console.error('❌ Erreur fallback catégories:', fallbackErr);
+          }
+        });
+      }
+    });
   }
 
   loadProducts() {
@@ -103,14 +121,14 @@ export class ProductsListingComponent implements OnInit {
     this.error = null;
 
     this.productService.getProducts({}).subscribe({
-      next: (data) => {
+      next: (data: Product[]) => {
         this.products = data;
         this.filteredProducts = data; // Initialize filtered products
         this.loading = false;
         // Re-apply filters after products are loaded
         this.applyFilters();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to load products. Please try again later.';
         this.loading = false;
         console.error(err);
@@ -198,9 +216,39 @@ export class ProductsListingComponent implements OnInit {
     // TODO: Call API to update favorites
   }
 
-  selectCategory(category: string) {
-    this.selectedCategory = this.selectedCategory === category ? '' : category;
-    this.applyFilters();
+  isClientConnected(): boolean {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    return !!token && role === 'client';
+  }
+
+  selectCategory(categoryName: string) {
+    if (this.selectedCategory === categoryName) {
+      // Si la même catégorie est cliquée, on la désélectionne
+      this.selectedCategory = '';
+    } else {
+      this.selectedCategory = categoryName;
+    }
+    
+    // Trouver la catégorie par son nom pour obtenir son ID
+    const category = this.categories.find(cat => cat.nom === categoryName);
+    if (category) {
+      // Naviguer vers la page de la catégorie avec l'ID
+      this.router.navigate(['/categories', category.id], {
+        queryParams: { 
+          category: categoryName,
+          q: this.searchQuery || undefined
+        }
+      });
+    } else {
+      // Fallback : naviguer avec le nom si l'ID n'est pas trouvé
+      this.router.navigate(['/categories', categoryName], {
+        queryParams: { 
+          category: categoryName,
+          q: this.searchQuery || undefined
+        }
+      });
+    }
   }
 
   toggleTag(tag: string) {
@@ -223,10 +271,8 @@ export class ProductsListingComponent implements OnInit {
   }
 
   getDiscountPercentage(product: any): number {
-    if (product.originalPrice > product.price) {
-      return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-    }
-    return 0;
+    if (!product.prix_original || product.prix_original <= product.prix) return 0;
+    return Math.round(100 * (product.prix_original - product.prix) / product.prix_original);
   }
 
   getStarArray(rating: number): boolean[] {
@@ -235,5 +281,36 @@ export class ProductsListingComponent implements OnInit {
       stars.push(i <= rating);
     }
     return stars;
+  }
+
+  onProfile() {
+    this.router.navigate(['/client/profile']);
+  }
+
+  onCart() {
+    this.router.navigate(['/cart']);
+  }
+
+  getCategoryIcon(categoryName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Électronique': 'devices',
+      'Vêtements': 'checkroom',
+      'Maison & Jardin': 'home',
+      'Sports & Loisirs': 'sports_soccer',
+      'Livres & Médias': 'book',
+      'Beauté & Santé': 'spa',
+      'Automobile': 'directions_car',
+      'Alimentation': 'restaurant',
+      'Jewelry & Accessories': 'diamond',
+      'Clothing & Shoes': 'checkroom',
+      'Home & Living': 'home',
+      'Wedding & Party': 'celebration',
+      'Toys & Entertainment': 'toys',
+      'Art & Collectibles': 'palette',
+      'Craft Supplies & Tools': 'build',
+      'Vintage': 'history'
+    };
+    
+    return iconMap[categoryName] || 'category';
   }
 } 

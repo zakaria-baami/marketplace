@@ -13,7 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { HeaderComponent } from '../../../shared/components/header/header';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
 
 @Component({
@@ -34,7 +33,6 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     MatSelectModule,
     MatCheckboxModule,
     MatPaginatorModule,
-    HeaderComponent,
     ProductCardComponent
   ],
   templateUrl: './search-page.html',

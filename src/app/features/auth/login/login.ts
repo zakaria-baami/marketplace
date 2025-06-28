@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LogoComponent } from '../../../shared/components/logo/logo';
+import { User } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-login',
@@ -64,14 +65,7 @@ export class LoginComponent {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: (user) => {
-        // Redirect based on role
-        if (user.role === 'vendeur') {
-          this.router.navigate(['/vendeur']);
-        } else if (user.role === 'admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        this.onLoginSuccess(user);
       },
       error: (err) => {
         const errorMessage = err.error.message || 'Login failed. Please check your credentials.';
@@ -83,5 +77,14 @@ export class LoginComponent {
         console.error(err);
       }
     });
+  }
+
+  onLoginSuccess(user: User) {
+    if (user.role === 'client') {
+      this.router.navigate(['/products']);
+    } else {
+      // Redirection par défaut ou selon le rôle
+      this.router.navigate(['/']);
+    }
   }
 }

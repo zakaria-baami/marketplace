@@ -13,7 +13,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
-import { HeaderComponent } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-vendeur-dashboard',
@@ -31,8 +30,7 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatProgressBarModule,
     MatTableModule,
     MatPaginatorModule,
-    MatMenuModule,
-    HeaderComponent
+    MatMenuModule
   ],
   templateUrl: './vendeur-dashboard.html',
   styleUrls: ['./vendeur-dashboard.css']

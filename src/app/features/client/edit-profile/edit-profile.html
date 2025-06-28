@@ -1,0 +1,118 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-1">Modifier mon profil</h1>
+      <p class="text-gray-600">Mettez à jour vos informations personnelles et votre mot de passe</p>
+      
+      <!-- Message d'alerte pour les modifications non sauvegardées -->
+      <div *ngIf="hasChanges" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center">
+        <mat-icon class="text-green-600 mr-2">edit</mat-icon>
+        <span class="text-green-800 text-sm">Modifications détectées. Vous pouvez maintenant sauvegarder vos changements.</span>
+      </div>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-10">
+      <!-- Section Informations personnelles -->
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h2 class="text-xl font-semibold text-orange-600 mb-6 flex items-center">
+          <mat-icon class="mr-2">person</mat-icon>
+          Informations personnelles
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="nom">Nom complet *</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="nom" formControlName="nom" placeholder="Votre nom et prénom">
+              <mat-error *ngIf="profileForm.get('nom')?.invalid && profileForm.get('nom')?.touched">
+                {{ getErrorMessage('nom') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="email">Adresse email *</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="email" type="email" formControlName="email" placeholder="votre.email@exemple.com">
+              <mat-error *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+                {{ getErrorMessage('email') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="telephone">Numéro de téléphone</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="telephone" formControlName="telephone" placeholder="+33 6 12 34 56 78">
+              <mat-error *ngIf="profileForm.get('telephone')?.invalid && profileForm.get('telephone')?.touched">
+                {{ getErrorMessage('telephone') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="adresse">Adresse de livraison</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <textarea matInput id="adresse" formControlName="adresse" placeholder="Votre adresse complète" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Sécurité -->
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h2 class="text-xl font-semibold text-blue-600 mb-6 flex items-center">
+          <mat-icon class="mr-2">lock</mat-icon>
+          Sécurité du compte
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="currentPassword">Ancien mot de passe</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="currentPassword" type="password" formControlName="currentPassword" autocomplete="current-password" placeholder="Ancien mot de passe">
+              <mat-error *ngIf="profileForm.get('currentPassword')?.invalid && profileForm.get('currentPassword')?.touched">
+                {{ getErrorMessage('currentPassword') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="newPassword">Nouveau mot de passe</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="Nouveau mot de passe">
+              <mat-error *ngIf="profileForm.get('newPassword')?.invalid && profileForm.get('newPassword')?.touched">
+                {{ getErrorMessage('newPassword') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-1" for="confirmPassword">Confirmer le mot de passe</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="Confirmez le mot de passe">
+              <mat-error *ngIf="profileForm.get('confirmPassword')?.invalid && profileForm.get('confirmPassword')?.touched">
+                {{ getErrorMessage('confirmPassword') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="text-xs text-gray-500 mt-2">
+          <strong>Note :</strong> Les informations personnelles (nom, email, téléphone, adresse) peuvent être modifiées indépendamment du mot de passe. 
+          Laissez les champs de mot de passe vides si vous ne souhaitez pas changer votre mot de passe.
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-end space-x-4">
+        <button type="button" mat-stroked-button (click)="onCancel()" [disabled]="loading">
+          Annuler
+        </button>
+        <button 
+          type="submit" 
+          mat-raised-button 
+          color="primary" 
+          [disabled]="loading || !hasChanges"
+          [class.animate-pulse]="hasChanges">
+          <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+          <mat-icon *ngIf="!loading" class="mr-2">save</mat-icon>
+          {{ loading ? 'Sauvegarde...' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

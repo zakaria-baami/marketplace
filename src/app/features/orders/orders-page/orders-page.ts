@@ -9,7 +9,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatChipsModule } from '@angular/material/chips';
-import { HeaderComponent } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-orders-page',
@@ -24,8 +23,7 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatTabsModule,
     MatPaginatorModule,
     MatStepperModule,
-    MatChipsModule,
-    HeaderComponent
+    MatChipsModule
   ],
   templateUrl: './orders-page.html',
   styleUrls: ['./orders-page.css']

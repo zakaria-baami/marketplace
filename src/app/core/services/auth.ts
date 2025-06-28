@@ -44,13 +44,27 @@ export class AuthService {
   private isBrowser: boolean = typeof window !== 'undefined' && !!window.localStorage;
 
   constructor(private http: HttpClient) {
-    let storedUser: string | null = null;
-    if (this.isBrowser) {
-      storedUser = localStorage.getItem('currentUser');
-    }
-    this.currentUserSubject = new BehaviorSubject<User | null>(storedUser ? JSON.parse(storedUser) : null);
-    this.currentUser = this.currentUserSubject.asObservable();
+  let storedUser: string | null = null;
+  if (this.isBrowser) {
+    storedUser = localStorage.getItem('currentUser');
   }
+  
+  // ✅ Version courte
+  let parsedUser: User | null = null;
+  if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+    try {
+      parsedUser = JSON.parse(storedUser);
+    } catch {
+      // Si erreur de parsing, nettoyer le localStorage
+      if (this.isBrowser) {
+        localStorage.removeItem('currentUser');
+      }
+    }
+  }
+  
+  this.currentUserSubject = new BehaviorSubject<User | null>(parsedUser);
+  this.currentUser = this.currentUserSubject.asObservable();
+}
 
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
@@ -105,5 +119,13 @@ export class AuthService {
 
   registerSeller(data: SellerRegistrationData) {
     return this.http.post(`${this.apiUrl}/register`, data);
+  }
+
+  public hasValidToken(): boolean {
+    if (this.isBrowser) {
+      const token = localStorage.getItem('accessToken');
+      return !!token;
+    }
+    return false;
   }
 }

@@ -1,12 +1,13 @@
+// categories-listing.component.ts - Version corrigée
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 
 import { Category, CategoryService } from '../../../core/services/category';
-import { HeaderComponent } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-categories-listing',
@@ -17,7 +18,7 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    HeaderComponent
+    MatButtonModule
   ],
   templateUrl: './categories-listing.html',
   styleUrls: ['./categories-listing.css']
@@ -30,16 +31,25 @@ export class CategoriesListingComponent implements OnInit {
   constructor(private categoryService: CategoryService) { }
 
   ngOnInit(): void {
-    this.categoryService.getCategories().subscribe({
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.loading = true;
+    this.error = null;
+
+    // Utiliser getCategoriesWithStats pour avoir le nombre de produits
+    this.categoryService.getCategoriesWithStats().subscribe({
       next: (data: Category[]) => {
+        console.log('✅ Catégories reçues du backend:', data);
         this.categories = data;
         this.loading = false;
       },
       error: (err: any) => {
-        this.error = 'Failed to load categories. Please try again later.';
+        console.error('❌ Erreur lors du chargement:', err);
+        this.error = 'Impossible de charger les catégories. Veuillez réessayer plus tard.';
         this.loading = false;
-        console.error(err);
       }
     });
   }
-} 
+}

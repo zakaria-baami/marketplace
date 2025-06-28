@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ClientDashboardComponent } from './client-dashboard/client-dashboard';
+import { EditProfileComponent } from './edit-profile/edit-profile';
 
 export const CLIENT_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./client-dashboard/client-dashboard').then(m => m.ClientDashboardComponent)
-  }
+    redirectTo: '/products',
+    pathMatch: 'full'
+  },
+  { path: 'profile', component: ClientDashboardComponent },
+  { path: 'edit-profile', component: EditProfileComponent },
 ];
 
 @NgModule({

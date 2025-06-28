@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HeaderComponent } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-shops-listing',
@@ -26,8 +25,7 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatInputModule,
     MatSelectModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule,
-    HeaderComponent
+    MatProgressSpinnerModule
   ],
   templateUrl: './shops-listing.html',
   styleUrls: ['./shops-listing.css']

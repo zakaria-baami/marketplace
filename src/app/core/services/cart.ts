@@ -144,26 +144,36 @@ export class CartService {
 
   // Load cart from localStorage
   private loadCartFromStorage(): void {
-    try {
+  try {
+    // Vérifier si localStorage est disponible (côté navigateur)
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const storedCart = localStorage.getItem(this.CART_STORAGE_KEY);
       if (storedCart) {
         this.cartItems = JSON.parse(storedCart);
         this.cartSubject.next([...this.cartItems]);
       }
-    } catch (error) {
-      console.error('Error loading cart from storage:', error);
+    } else {
+      // Côté serveur - initialiser avec un tableau vide
       this.cartItems = [];
+      this.cartSubject.next([...this.cartItems]);
     }
+  } catch (error) {
+    console.error('Error loading cart from storage:', error);
+    this.cartItems = [];
+    this.cartSubject.next([...this.cartItems]);
   }
+}
 
   // Save cart to localStorage
-  private saveCartToStorage(): void {
-    try {
+ private saveCartToStorage(): void {
+  try {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(this.cartItems));
-    } catch (error) {
-      console.error('Error saving cart to storage:', error);
     }
+  } catch (error) {
+    console.error('Error saving cart to storage:', error);
   }
+}
 
   // Generate unique item ID
   private generateItemId(): string {

@@ -9,7 +9,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
-import { HeaderComponent } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-messages-page',
@@ -24,8 +23,7 @@ import { HeaderComponent } from '../../../shared/components/header/header';
     MatListModule,
     MatInputModule,
     MatFormFieldModule,
-    MatBadgeModule,
-    HeaderComponent
+    MatBadgeModule
   ],
   templateUrl: './messages-page.html',
   styleUrls: ['./messages-page.css']
