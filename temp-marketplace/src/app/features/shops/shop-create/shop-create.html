@@ -1,0 +1,119 @@
+<div *ngIf="!boutique" class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-6">Créer votre boutique</h1>
+    <form [formGroup]="shopForm" (ngSubmit)="onSubmit()">
+      <div class="mb-4">
+        <label for="nom" class="block font-semibold mb-1">Nom de la boutique*</label>
+        <input id="nom" formControlName="nom" type="text" class="w-full border rounded px-3 py-2" placeholder="Nom de la boutique" />
+      </div>
+      <div class="mb-4">
+        <label for="description" class="block font-semibold mb-1">Description*</label>
+        <textarea id="description" formControlName="description" class="w-full border rounded px-3 py-2" placeholder="Décrivez votre boutique"></textarea>
+      </div>
+      <div class="template-selection">
+        <label class="block mb-2 font-semibold">Choisissez un template :</label>
+        <div class="template-list" style="display:flex;gap:24px;flex-wrap:wrap;">
+          <div *ngFor="let tpl of templates" (click)="selectedTemplateId = tpl.id"
+               [class.selected]="selectedTemplateId === tpl.id"
+               style="cursor:pointer;padding:12px 18px;border-radius:12px;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.04);background:#fff;min-width:160px;text-align:center;transition:border 0.2s;">
+            <img *ngIf="tpl.image" [src]="tpl.image" alt="{{tpl.nom}}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+            <div style="font-weight:600;">{{ tpl.nom }}</div>
+            <div style="font-size:0.97rem;color:#888;">{{ tpl.description }}</div>
+            <div *ngIf="selectedTemplateId === tpl.id" style="color:#2196f3;font-size:0.95rem;margin-top:4px;">Sélectionné</div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" [disabled]="shopForm.invalid || loading" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg mt-4">
+        {{ loading ? 'Création en cours...' : 'Créer la boutique' }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<div *ngIf="boutique" class="min-h-screen bg-gray-50 py-10 px-4">
+  <div class="max-w-5xl mx-auto">
+    <!-- Dashboard boutique -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">{{ boutique.nom }}</h1>
+      <p class="text-gray-600 mt-2">{{ boutique.description }}</p>
+    </div>
+    <!-- Actions -->
+    <div class="mb-8 flex gap-4">
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-lg" (click)="showAddProductForm = !showAddProductForm">Ajouter un produit</button>
+    </div>
+    <!-- Formulaire d'ajout de produit -->
+    <form *ngIf="showAddProductForm" class="mb-8 bg-white p-6 rounded-xl shadow" (ngSubmit)="addProduct()">
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Nom du produit</label>
+        <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="newProduct.name" name="name" required />
+      </div>
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Prix</label>
+        <input type="number" class="w-full border rounded px-3 py-2" [(ngModel)]="newProduct.price" name="price" required />
+      </div>
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Stock</label>
+        <input type="number" class="w-full border rounded px-3 py-2" [(ngModel)]="newProduct.stock" name="stock" required />
+      </div>
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Photo (URL)</label>
+        <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="newProduct.photo" name="photo" placeholder="URL de la photo" />
+      </div>
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Description</label>
+        <textarea class="w-full border rounded px-3 py-2" [(ngModel)]="newProduct.description" name="description" placeholder="Description du produit"></textarea>
+      </div>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter</button>
+    </form>
+    <!-- Liste des produits -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Produits de la boutique</h2>
+      <table class="min-w-full text-sm text-left bg-white rounded-xl shadow">
+        <thead>
+          <tr>
+            <th class="px-4 py-2">Photo</th>
+            <th class="px-4 py-2">Nom</th>
+            <th class="px-4 py-2">Prix (€)</th>
+            <th class="px-4 py-2">Stock</th>
+            <th class="px-4 py-2">Description</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td class="px-4 py-2">
+              <img *ngIf="product.photo" [src]="product.photo" alt="photo" class="w-16 h-16 object-cover rounded" />
+            </td>
+            <td class="px-4 py-2 font-medium">{{ product.name }}</td>
+            <td class="px-4 py-2">{{ product.price }}</td>
+            <td class="px-4 py-2">{{ product.stock }}</td>
+            <td class="px-4 py-2">{{ product.description }}</td>
+            <td class="px-4 py-2">
+              <button class="bg-red-500 text-white px-2 py-1 rounded" (click)="deleteProduct(product.id)">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Statistiques -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Statistiques de Vente</h2>
+      <table class="min-w-full text-sm text-left bg-white rounded-xl shadow">
+        <thead>
+          <tr>
+            <th class="px-4 py-2">Mois</th>
+            <th class="px-4 py-2">Chiffre d'affaires (€)</th>
+            <th class="px-4 py-2">Commandes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stat of salesDataByMonth">
+            <td class="px-4 py-2 font-medium">{{ stat.month }}</td>
+            <td class="px-4 py-2">{{ stat.revenue }}</td>
+            <td class="px-4 py-2">{{ stat.orders }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div> 

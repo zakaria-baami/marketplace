@@ -1,0 +1,61 @@
+<div class="classic-layout">
+  <!-- Sidebar gauche -->
+  <aside class="sidebar">
+    <div class="avatar-block">
+      <div class="avatar">
+        <ng-container *ngIf="shop?.logo; else avatarLetter">
+          <img [src]="shop.logo" alt="Logo" />
+        </ng-container>
+        <ng-template #avatarLetter>{{ shop?.name?.charAt(0) }}</ng-template>
+      </div>
+      <div class="shop-name">{{ shop?.name }}</div>
+      <div class="shop-desc">{{ shop?.description || 'Des créations uniques pour tous les goûts' }}</div>
+      <div class="shop-reviews">
+        <span class="star">★</span> <span class="review-count">({{ shop?.reviews?.length || 0 }} avis)</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="section-title">À propos de la boutique</div>
+      <div class="section-content">{{ shop?.about || 'Bienvenue dans ma boutique ! Découvrez mes créations artisanales.' }}</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="section-title">Catégories</div>
+      <ul class="categories-list">
+        <li *ngFor="let cat of shop?.categories || []">{{ cat }}</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="banner-block">
+      <img *ngIf="shop?.banner" [src]="shop.banner" alt="Bannière" />
+      <div *ngIf="!shop?.banner" class="banner-placeholder"></div>
+    </div>
+    <div class="creations-title">Nos créations</div>
+    <div class="products-grid" *ngIf="products && products.length > 0">
+      <div class="product-card" *ngFor="let product of products">
+        <div class="product-img">
+          <ng-container *ngIf="product.image; else noImage">
+            <img [src]="product.image" [alt]="product.nom" style="width:100%;height:100%;object-fit:cover;">
+          </ng-container>
+          <ng-template #noImage>
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ccc;">
+              <mat-icon>image</mat-icon>
+            </div>
+          </ng-template>
+        </div>
+        <div class="product-name">{{ product.nom }}</div>
+        <div class="product-price">{{ product.prix | currency:'EUR' }}</div>
+        <div class="product-desc">{{ product.description }}</div>
+      </div>
+    </div>
+    
+    <!-- Message si aucun produit -->
+    <div *ngIf="!products || products.length === 0" style="text-align:center;padding:40px;">
+      <mat-icon style="font-size:48px;color:#ccc;margin-bottom:20px;">inventory_2</mat-icon>
+      <h3 style="color:#666;margin-bottom:10px;">Aucun produit disponible</h3>
+      <p style="color:#999;">Cette boutique n'a pas encore de produits.</p>
+    </div>
+  </main>
+</div> 

@@ -1,0 +1,151 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- HEADER STYLE PLATEFORME -->
+  <header class="header-jumia-clone">
+    <div class="header-inner">
+      <!-- Logo -->
+      <div class="header-logo">
+        <img src="assets/images/logo-moghrabi.svg" alt="Logo Moghrabi" class="logo-img" />
+        <div class="logo-text-block">
+          <span class="logo-text-moghrabi">MOG<span class="logo-text-gradient">HRABI</span></span>
+          <span class="logo-subtitle">Marketplace</span>
+        </div>
+      </div>
+      <!-- Barre de recherche -->
+      <form class="header-search" (submit)="onSearch()">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" [(ngModel)]="searchQuery" name="search"
+          placeholder="Cherchez un produit, une marque ou une catégorie" />
+        <button type="submit" class="search-btn">Rechercher</button>
+      </form>
+      <!-- Actions à droite -->
+      <div class="header-actions">
+        <!-- Compte -->
+        <div class="header-account" (click)="toggleAccountMenu()" (mouseenter)="onAccountMenuEnter()" (mouseleave)="onAccountMenuLeave()">
+          <mat-icon class="account-icon">account_circle</mat-icon>
+          <span class="account-text">Bonjour, ZAK</span>
+          <mat-icon class="chevron-icon">keyboard_arrow_down</mat-icon>
+          <div class="account-menu" *ngIf="accountMenuOpen" (mouseenter)="onAccountMenuEnter()" (mouseleave)="onAccountMenuLeave()">
+            <ul>
+              <li (click)="navigateTo('/client/profile')"><mat-icon>person</mat-icon>Profil</li>
+              <li (click)="navigateTo('/cart')"><mat-icon>shopping_cart</mat-icon>Panier</li>
+              <li class="logout" (click)="logout()"><mat-icon>logout</mat-icon>Déconnexion</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Aide -->
+        <div class="header-help" (click)="toggleHelpMenu()" tabindex="0" (blur)="closeHelpMenu()">
+          <mat-icon class="help-icon">help_outline</mat-icon>
+          <span class="help-text">Aide</span>
+          <mat-icon class="chevron-icon">keyboard_arrow_down</mat-icon>
+          <div class="help-menu" *ngIf="helpMenuOpen">
+            <ul>
+              <li (click)="navigateTo('/help-center')"><mat-icon>support_agent</mat-icon>Centre d'assistance</li>
+              <li (click)="navigateTo('/easy-return')"><mat-icon>autorenew</mat-icon>Retour facile</li>
+              <li (click)="navigateTo('/sell')"><mat-icon>storefront</mat-icon>Vendre sur Moghrabi</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Panier -->
+        <div class="header-cart" (click)="navigateTo('/cart')">
+          <mat-icon class="cart-icon">shopping_cart</mat-icon>
+          <span class="cart-text">Panier</span>
+          <span class="cart-badge">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- CATEGORIES EN HAUT DE PAGE -->
+      <!-- (SUPPRIMÉ: boutons ronds/ovales de catégories) -->
+
+      <!-- SIDEBAR FILTRES -->
+      <div class="lg:w-1/4">
+        <div class="sidebar-categories">
+          <ul>
+            <li *ngFor="let category of categories">
+              <button class="sidebar-category-btn" (click)="selectCategory(category.id)" [ngClass]="{'active': selectedCategory === category.id}">
+                <mat-icon class="sidebar-category-icon">{{ getCategoryIcon(category.nom) }}</mat-icon>
+                <span class="sidebar-category-label">{{ category.nom }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT : GRILLE DES PRODUITS -->
+      <div class="lg:w-3/4">
+        <!-- Loading -->
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error && !loading" class="text-center py-20">
+          <mat-icon class="text-red-500 text-6xl mb-4">error</mat-icon>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Erreur de chargement</h2>
+          <p class="text-gray-600 mb-6">{{ error }}</p>
+          <button mat-raised-button color="primary" (click)="loadProducts()">
+            Réessayer
+          </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div *ngIf="!loading && !error">
+          <!-- Results Info -->
+          <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600">
+              {{ totalItems }} produit{{ totalItems > 1 ? 's' : '' }} trouvé{{ totalItems > 1 ? 's' : '' }}
+            </p>
+          </div>
+
+          <!-- Products -->
+          <div *ngIf="products.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <app-product-card 
+              *ngFor="let product of products"
+              [product]="product">
+            </app-product-card>
+          </div>
+
+          <!-- No Products -->
+          <div *ngIf="products.length === 0" class="text-center py-20">
+            <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Aucun produit trouvé</h2>
+            <p class="text-gray-600 mb-6">Essayez de modifier vos filtres ou votre recherche</p>
+            <button mat-raised-button color="primary" (click)="clearFilters()">
+              Effacer les filtres
+            </button>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="totalPages > 1" class="flex justify-center items-center space-x-2">
+            <button 
+              mat-icon-button 
+              [disabled]="currentPage === 1"
+              (click)="onPageChange(currentPage - 1)"
+              class="text-gray-500 hover:text-gray-700">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            
+            <button 
+              *ngFor="let page of pageNumbers"
+              (click)="onPageChange(page)"
+              [class]="page === currentPage ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+              class="px-3 py-2 rounded-md border border-gray-300 font-medium">
+              {{ page }}
+            </button>
+            
+            <button 
+              mat-icon-button 
+              [disabled]="currentPage === totalPages"
+              (click)="onPageChange(currentPage + 1)"
+              class="text-gray-500 hover:text-gray-700">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

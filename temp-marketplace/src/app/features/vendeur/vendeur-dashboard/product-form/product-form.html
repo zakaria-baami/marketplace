@@ -1,0 +1,97 @@
+<div class="p-6 bg-gray-50 min-h-full relative">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-75 flex justify-center items-center z-50">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center mb-6">
+      <button mat-icon-button routerLink="/vendeur/products" class="mr-2">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
+    </div>
+
+    <!-- Form -->
+    <mat-card>
+      <mat-card-content class="p-6">
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Product Name -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Product Name</mat-label>
+            <input matInput formControlName="nom" required>
+            <mat-error *ngIf="productForm.get('nom')?.hasError('required')">Name is required</mat-error>
+          </mat-form-field>
+
+          <!-- Product Description -->
+          <mat-form-field appearance="outline" class="w-full mt-4">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="5" required></textarea>
+            <mat-error *ngIf="productForm.get('description')?.hasError('required')">Description is required</mat-error>
+          </mat-form-field>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 mt-4">
+            <!-- Price -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Price</mat-label>
+              <input matInput type="number" formControlName="prix" required>
+               <span matTextPrefix>€&nbsp;</span>
+              <mat-error *ngIf="productForm.get('prix')?.hasError('required')">Price is required</mat-error>
+              <mat-error *ngIf="productForm.get('prix')?.hasError('min')">Price must be positive</mat-error>
+            </mat-form-field>
+
+            <!-- Stock -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Stock Quantity</mat-label>
+              <input matInput type="number" formControlName="stock" required>
+              <mat-error *ngIf="productForm.get('stock')?.hasError('required')">Stock is required</mat-error>
+              <mat-error *ngIf="productForm.get('stock')?.hasError('min')">Stock cannot be negative</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Category -->
+          <mat-form-field appearance="outline" class="w-full mt-4">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="categorie_id" required>
+              <mat-option *ngFor="let category of categories" [value]="category.id">
+                {{ category.nom }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="productForm.get('categorie_id')?.hasError('required')">Category is required</mat-error>
+          </mat-form-field>
+
+          <!-- Images -->
+          <div class="mt-6">
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Product Images</h3>
+            <div formArrayName="images">
+              <div *ngFor="let image of imagesFormArray.controls; let i=index" class="flex items-center gap-x-4 mb-2">
+                <mat-form-field appearance="outline" class="flex-grow">
+                  <mat-label>Image URL {{ i + 1 }}</mat-label>
+                  <input matInput [formControlName]="i">
+                </mat-form-field>
+                <button mat-icon-button color="warn" type="button" (click)="removeImageField(i)" [disabled]="imagesFormArray.controls.length === 1">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
+            </div>
+            <button mat-stroked-button type="button" (click)="addImageField()">
+              <mat-icon>add</mat-icon>
+              Add another image
+            </button>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-x-4 mt-8">
+            <button mat-button type="button" routerLink="/vendeur/products">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+              {{ isEditMode ? 'Update Product' : 'Create Product' }}
+            </button>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

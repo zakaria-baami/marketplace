@@ -1,0 +1,34 @@
+/* Add any specific styles for the selection container if needed. */
+
+.template-card {
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08), 0 1.5px 6px 0 rgba(255,140,0,0.08);
+  border: 2px solid #f3f4f6;
+  background: #fff;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  margin-bottom: 2.5rem;
+}
+.template-card:hover {
+  border-color: #ff9800;
+  box-shadow: 0 8px 32px 0 rgba(255,152,0,0.15), 0 2px 8px 0 rgba(0,0,0,0.10);
+  transform: translateY(-4px) scale(1.01);
+}
+.template-header {
+  background: linear-gradient(90deg, #fff7ed 0%, #ffe0b2 100%);
+  border-bottom: 1.5px solid #ffe0b2;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.template-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff9800;
+}
+.template-preview {
+  height: 600px;
+  overflow: auto;
+  background: #f9fafb;
+  padding: 2rem;
+} 

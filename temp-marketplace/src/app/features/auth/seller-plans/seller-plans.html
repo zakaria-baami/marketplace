@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+  <div class="max-w-6xl w-full">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+        Choisissez le plan parfait pour votre boutique
+      </h1>
+      <p class="mt-4 text-xl text-gray-600">
+        Commencez petit et grandissez à votre rythme. Tous les plans incluent des outils puissants pour vous aider à réussir.
+      </p>
+    </div>
+
+    <!-- Plans Grid -->
+    <!--
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+      <mat-card 
+        *ngFor="let plan of plans" 
+        class="flex flex-col rounded-2xl shadow-lg transition-all duration-300"
+        [ngClass]="{'border-2 border-orange-500 shadow-2xl transform scale-105': plan.recommended}">
+        
+        <div class="p-8 flex-grow">
+          <div *ngIf="plan.recommended" class="text-right mb-2">
+            <div class="inline-block bg-orange-500 text-white font-semibold px-3 py-1 rounded-full text-sm">
+              Recommandé
+            </div>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ plan.name }}</h2>
+          <p class="text-gray-600 mb-6">{{ plan.description }}</p>
+          
+          <div class="mb-8">
+            <span class="text-5xl font-extrabold text-gray-900">{{ plan.price }}€</span>
+            <span class="text-lg text-gray-500">/mois</span>
+          </div>
+
+          <ul class="space-y-4 mb-8">
+            <li *ngFor="let feature of plan.features" class="flex items-center">
+              <mat-icon class="text-green-500 mr-3">check_circle</mat-icon>
+              <span class="text-gray-700">{{ feature }}</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="p-8 pt-0">
+          <button 
+            mat-raised-button 
+            class="w-full py-3"
+            [ngClass]="plan.recommended ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-gray-800 hover:bg-gray-900 text-white'"
+            (click)="goToTemplate(plan.name)">
+            {{ plan.buttonText }}
+          </button>
+        </div>
+      </mat-card>
+    </div>
+    -->
+
+    <div class="text-center mt-12">
+      <p class="text-gray-600">La sélection de plan n'est plus nécessaire, choisissez directement un template.</p>
+    </div>
+
+    <div class="text-center mt-12">
+      <p class="text-gray-600">Vous n'êtes pas sûr ? 
+        <a [routerLink]="['/auth/register/role']" class="font-medium text-orange-600 hover:text-orange-500">
+          Retourner au choix du rôle
+        </a>
+      </p>
+    </div>
+  </div>
+</div> 

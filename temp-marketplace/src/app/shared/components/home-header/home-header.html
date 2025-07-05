@@ -1,0 +1,37 @@
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <app-logo></app-logo>
+      </div>
+      <!-- Search Bar -->
+      <form (ngSubmit)="onSearch()" class="flex-1 flex justify-center mx-4">
+        <div class="flex items-center w-full max-w-lg border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
+          <span class="pl-3 pr-2 text-gray-400">
+            <mat-icon>search</mat-icon>
+          </span>
+          <input matInput [(ngModel)]="searchQuery" name="search" placeholder="Cherchez un produit, une marque ou une catégorie" class="flex-1 py-2 px-2 outline-none border-0 bg-transparent" />
+          <button type="submit" class="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-colors">
+            Rechercher
+          </button>
+        </div>
+      </form>
+      <!-- Actions à droite -->
+      <div class="flex items-center space-x-4">
+        <button mat-button (click)="onLogin()">Se connecter</button>
+        <button mat-raised-button color="primary" (click)="onRegister()" class="bg-orange-500 hover:bg-orange-600 border-2 border-orange-500 rounded-lg shadow-md px-4 py-2">
+          Inscription
+        </button>
+        <button mat-icon-button>
+          <mat-icon>help_outline</mat-icon>
+        </button>
+        <span class="hidden md:inline text-gray-700 font-medium">Aide</span>
+        <button mat-icon-button (click)="onCart()" class="relative">
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
+        <span class="hidden md:inline text-gray-700 font-medium">Panier</span>
+      </div>
+    </div>
+  </div>
+</header> 

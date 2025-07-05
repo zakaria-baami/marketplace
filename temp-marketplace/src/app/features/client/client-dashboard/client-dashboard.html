@@ -1,0 +1,183 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Mon Compte</h1>
+        <p class="text-gray-600 mt-2">Gérez vos commandes et informations personnelles</p>
+      </div>
+      <div class="flex space-x-3">
+        <button mat-stroked-button 
+                (click)="refreshData()"
+                [disabled]="loading"
+                class="flex items-center">
+          <mat-icon class="mr-2">{{ loading ? 'hourglass_empty' : 'refresh' }}</mat-icon>
+          {{ loading ? 'Chargement...' : 'Actualiser' }}
+        </button>
+        <button mat-raised-button 
+                color="primary" 
+                routerLink="/products"
+                class="flex items-center">
+          <mat-icon class="mr-2">shopping_bag</mat-icon>
+          Retour aux produits
+        </button>
+      </div>
+    </div>
+
+    <!-- User Profile Card -->
+    <mat-card class="mb-8">
+      <mat-card-content class="p-6">
+        <div class="flex items-center space-x-6">
+          <!-- Avatar -->
+          <div class="w-20 h-20 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full flex items-center justify-center">
+            <span class="text-white text-2xl font-bold">{{ user?.avatar }}</span>
+          </div>
+          
+          <!-- User Info -->
+          <div class="flex-1">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              {{ user?.nom || 'Chargement...' }}
+            </h2>
+            <p class="text-gray-600 mb-1">{{ user?.email || 'Chargement...' }}</p>
+            <p class="text-gray-600 mb-3">{{ user?.telephone || 'Téléphone non renseigné' }}</p>
+            
+            <!-- Member Since -->
+            <p class="text-sm text-gray-500 mb-3">
+              Membre depuis {{ user && user.created_at ? (user.created_at | date:'MMMM yyyy') : 'Chargement...' }}
+            </p>
+            
+            <!-- Statistics -->
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-orange-600">
+                  {{ nbCommandes }} commandes
+                </span>
+                <mat-icon class="text-sm text-orange-600">shopping_bag</mat-icon>
+              </div>
+              <div class="flex-1 max-w-xs">
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>{{ montantTotal }}€ dépensés</span>
+                </div>
+                <mat-progress-bar 
+                  [value]="getProgressValue()" 
+                  color="primary"
+                  class="h-2">
+                </mat-progress-bar>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="text-right">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="text-2xl font-bold text-orange-600">{{ nbCommandes }}</div>
+                <div class="text-sm text-gray-600">Commandes</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-green-600">{{ montantTotal }}€</div>
+                <div class="text-sm text-gray-600">Total dépensé</div>
+              </div>
+            </div>
+            <button mat-stroked-button (click)="editProfile()" class="mt-4">
+              <mat-icon class="mr-2">edit</mat-icon>
+              Modifier le profil
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Dashboard Tabs -->
+    <mat-tab-group class="dashboard-tabs" [(selectedIndex)]="activeTab">
+      
+      <!-- Orders Tab -->
+      <mat-tab label="Mes Commandes">
+        <div class="py-6">
+          <div class="space-y-6">
+            <div *ngFor="let order of orders" class="bg-white rounded-lg shadow-sm border p-6">
+              <!-- Order Header -->
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">Commande #{{ order.id }}</h3>
+                  <p class="text-sm text-gray-600">Commande du {{ order.date_creation | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-2">
+                    <mat-icon [class]="getOrderStatusColor(order.statut)">
+                      {{ getOrderStatusIcon(order.statut) }}
+                    </mat-icon>
+                    <span [class]="getOrderStatusColor(order.statut)" class="font-medium">
+                      {{ getOrderStatusText(order.statut) }}
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">{{ order.total }}€</div>
+                    <div class="text-sm text-gray-600">{{ order.items.length || 0 }} article(s)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order Items -->
+              <div class="space-y-3 mb-4" *ngIf="order.items && order.items.length > 0">
+                <div *ngFor="let item of order.items" class="flex justify-between text-sm">
+                  <span>{{ item.nom_produit }} x{{ item.quantite }}</span>
+                  <span>{{ item.sous_total }}€</span>
+                </div>
+              </div>
+
+              <!-- Order Actions -->
+              <div class="flex items-center justify-between pt-4 border-t">
+                <div class="text-sm text-gray-600">
+                  <div *ngIf="order.adresse_livraison">Adresse: {{ order.adresse_livraison }}</div>
+                  <div *ngIf="order.mode_paiement">Paiement: {{ order.mode_paiement }}</div>
+                  <div *ngIf="order.date_validation">
+                    Validée le: {{ order.date_validation | date:'dd/MM/yyyy' }}
+                  </div>
+                </div>
+                <div class="flex space-x-3">
+                  <button mat-stroked-button (click)="viewOrder(order.id)">
+                    <mat-icon class="mr-2">visibility</mat-icon>
+                    Voir les détails
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty Orders -->
+            <div *ngIf="orders.length === 0" class="text-center py-12">
+              <mat-icon class="text-gray-400 text-6xl mb-4">shopping_bag</mat-icon>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune commande</h3>
+              <p class="text-gray-600 mb-6">Vous n'avez pas encore passé de commande</p>
+              <button mat-raised-button color="primary" routerLink="/products">
+                <mat-icon class="mr-2">shopping_bag</mat-icon>
+                Découvrir nos produits
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Addresses Tab -->
+      <mat-tab label="Mes Adresses">
+        <div class="py-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
+          </div>
+          <div *ngIf="addresses.length > 0; else noAddress">
+            <div class="bg-white rounded-lg shadow-sm border p-6 relative">
+              <div class="font-medium">{{ addresses[0] }}</div>
+            </div>
+          </div>
+          <ng-template #noAddress>
+            <div class="text-center py-12">
+              <mat-icon class="text-gray-400 text-6xl mb-4">location_on</mat-icon>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune adresse</h3>
+              <p class="text-gray-600 mb-6">Ajoutez une adresse de livraison pour faciliter vos commandes</p>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div> 

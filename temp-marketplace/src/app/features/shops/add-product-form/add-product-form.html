@@ -1,0 +1,128 @@
+<div class="add-product-form">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Ajouter un nouveau produit</mat-card-title>
+      <mat-card-subtitle>Remplissez les informations du produit</mat-card-subtitle>
+    </mat-card-header>
+
+    <!-- Message d'attente si boutiqueId n'est pas disponible -->
+    <div *ngIf="!boutiqueId" style="padding: 20px; text-align: center;">
+      <mat-spinner diameter="30" style="margin: 0 auto 10px;"></mat-spinner>
+      <p>Chargement des données de la boutique...</p>
+    </div>
+
+    <!-- Formulaire principal -->
+    <mat-card-content *ngIf="boutiqueId">
+      <form #productForm="ngForm" (ngSubmit)="addProduct()">
+        <div class="form-grid">
+          <!-- Colonne gauche -->
+          <div class="form-column">
+            <!-- Nom du produit -->
+            <mat-form-field appearance="outline">
+              <mat-label>Nom du produit *</mat-label>
+              <input matInput [(ngModel)]="newProduct.nom" name="nom" required minlength="2" maxlength="100">
+              <mat-error *ngIf="productForm.form.get('nom')?.hasError('required')">Le nom est obligatoire</mat-error>
+              <mat-error *ngIf="productForm.form.get('nom')?.hasError('minlength')">Le nom doit contenir au moins 2 caractères</mat-error>
+            </mat-form-field>
+
+            <!-- Description -->
+            <mat-form-field appearance="outline">
+              <mat-label>Description</mat-label>
+              <textarea matInput [(ngModel)]="newProduct.description" name="description" rows="3" maxlength="500"></textarea>
+              <mat-hint>{{ newProduct.description.length || 0 }}/500 caractères</mat-hint>
+            </mat-form-field>
+
+            <!-- Prix -->
+            <mat-form-field appearance="outline">
+              <mat-label>Prix (€) *</mat-label>
+              <input matInput type="number" [(ngModel)]="newProduct.prix" name="prix" required min="0" step="0.01">
+              <span matSuffix>€</span>
+              <mat-error *ngIf="productForm.form.get('prix')?.hasError('required')">Le prix est obligatoire</mat-error>
+              <mat-error *ngIf="productForm.form.get('prix')?.hasError('min')">Le prix doit être positif</mat-error>
+            </mat-form-field>
+
+            <!-- Stock -->
+            <mat-form-field appearance="outline">
+              <mat-label>Stock *</mat-label>
+              <input matInput type="number" [(ngModel)]="newProduct.stock" name="stock" required min="0">
+              <mat-error *ngIf="productForm.form.get('stock')?.hasError('required')">Le stock est obligatoire</mat-error>
+              <mat-error *ngIf="productForm.form.get('stock')?.hasError('min')">Le stock doit être positif</mat-error>
+            </mat-form-field>
+
+            <!-- Catégorie -->
+            <mat-form-field appearance="outline">
+              <mat-label>Catégorie *</mat-label>
+              <mat-select [(ngModel)]="newProduct.categorie_id" name="categorie_id" required>
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.nom }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="productForm.form.get('categorie_id')?.hasError('required')">La catégorie est obligatoire</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="form-column">
+            <!-- Image du produit -->
+            <div class="image-upload-section">
+              <label class="upload-label">Image du produit</label>
+              
+              <!-- Aperçu de l'image -->
+              <div *ngIf="imagePreview" class="image-preview">
+                <img [src]="imagePreview" alt="Aperçu">
+              </div>
+              
+              <!-- Zone de sélection d'image -->
+              <div class="upload-zone" 
+                   (click)="fileInput.click()" 
+                   (dragover)="$event.preventDefault()" 
+                   (drop)="onFileDrop($event)">
+                <mat-icon>cloud_upload</mat-icon>
+                <p>Cliquez ou glissez une image ici</p>
+                <small>JPG, PNG, GIF (max 5MB)</small>
+              </div>
+              
+              <input #fileInput type="file" (change)="onImageSelected($event)" accept="image/*" style="display:none;">
+              
+              <!-- Bouton pour supprimer l'image -->
+              <button *ngIf="selectedImage" type="button" mat-stroked-button color="warn" 
+                      (click)="removeImage()" class="remove-image-btn">
+                <mat-icon>delete</mat-icon>
+                Supprimer l'image
+              </button>
+            </div>
+
+            <!-- Tags -->
+            <mat-form-field appearance="outline">
+              <mat-label>Tags (séparés par des virgules)</mat-label>
+              <input matInput [(ngModel)]="newProduct.tags" name="tags" placeholder="ex: artisanal, fait main, écologique">
+              <mat-hint>Mots-clés pour faciliter la recherche</mat-hint>
+            </mat-form-field>
+
+            <!-- Informations -->
+            <div class="info-box">
+              <h4>Informations</h4>
+              <ul>
+                <li>Le produit sera automatiquement activé</li>
+                <li>Vous pourrez modifier ces informations plus tard</li>
+                <li>L'image sera optimisée automatiquement</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+          <button type="button" mat-stroked-button (click)="cancel()">
+            Annuler
+          </button>
+          <button type="submit" mat-raised-button color="primary" 
+                  [disabled]="addingProduct || !productForm.form.valid">
+            <mat-spinner *ngIf="addingProduct" diameter="20"></mat-spinner>
+            {{ addingProduct ? 'Ajout en cours...' : 'Ajouter le produit' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div> 

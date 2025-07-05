@@ -1,0 +1,47 @@
+/* Vendeur Dashboard Styles */
+.dashboard-tabs {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-body-content {
+  padding: 0;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-tab-label.mat-mdc-tab-label-active {
+  color: #f97316;
+}
+
+.dashboard-tabs ::ng-deep .mat-mdc-ink-bar {
+  background-color: #f97316;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.activity-icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-icon-container mat-icon {
+  color: white;
+} 

@@ -1,0 +1,39 @@
+{
+  "HEADER": {
+    "HOME": "Home",
+    "CATEGORIES": "Categories",
+    "FAVORITES": "Favorites",
+    "CART": "Cart",
+    "LOGIN": "Login",
+    "REGISTER": "Sign Up",
+    "LOGOUT": "Logout"
+  },
+  "DASHBOARD": {
+    "TITLE": "Seller Dashboard",
+    "EDIT_SHOP": "Edit Shop",
+    "VIEW_SHOP": "View Shop",
+    "CUSTOMIZE_SHOP": "Customize Shop"
+  },
+  "PRODUCT": {
+    "ADD": "Add Product",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "PRICE": "Price",
+    "STOCK": "Stock"
+  },
+  "SHOP": {
+    "NAME": "Shop Name",
+    "TAGLINE": "Tagline",
+    "DESCRIPTION": "Description",
+    "LOGO": "Logo",
+    "BANNER": "Banner",
+    "TEMPLATE": "Template",
+    "SAVE": "Save"
+  },
+  "COMMON": {
+    "YES": "Yes",
+    "NO": "No",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm"
+  }
+}

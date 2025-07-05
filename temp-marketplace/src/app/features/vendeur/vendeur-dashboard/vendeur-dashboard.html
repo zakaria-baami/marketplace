@@ -1,0 +1,269 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord Vendeur</h1>
+      <p class="text-gray-600 mt-2">Gérez votre boutique, vos produits et analysez vos ventes</p>
+    </div>
+
+    <!-- Shop Overview Card -->
+    <mat-card class="mb-8">
+      <mat-card-content class="p-6">
+        <div class="flex items-center space-x-6">
+          <!-- Shop Avatar -->
+          <div class="relative">
+            <div class="w-24 h-24 bg-gradient-to-br from-orange-300 to-pink-300 rounded-lg flex items-center justify-center">
+              <span class="text-white text-3xl font-bold">{{ shop?.avatar }}</span>
+            </div>
+            <div *ngIf="shop?.isVerified" 
+                 class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white">
+              <mat-icon class="text-white">verified</mat-icon>
+            </div>
+          </div>
+          
+          <!-- Shop Info -->
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ shop?.name }}</h2>
+              <span class="bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full font-semibold">
+                {{ shop?.grade }}
+              </span>
+            </div>
+            <p class="text-gray-600 mb-2">{{ shop?.description }}</p>
+            
+            <div class="flex items-center mt-3 space-x-6 text-sm text-gray-600">
+              <div class="flex items-center">
+                <mat-icon class="text-yellow-400 text-lg mr-1">star</mat-icon>
+                <span>{{ shop?.rating }} • {{ shop?.totalSales }} ventes</span>
+              </div>
+              <span><mat-icon class="text-gray-400 text-lg mr-1">inventory</mat-icon>{{ shop?.totalProducts }} produits</span>
+              <span><mat-icon class="text-gray-400 text-lg mr-1">people</mat-icon>{{ shop?.followers }} abonnés</span>
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="text-right">
+            <a mat-stroked-button color="accent" [routerLink]="['/vendeur/designer']" class="mb-2 w-full">
+              <mat-icon class="mr-2">brush</mat-icon>
+              Personnaliser la boutique
+            </a>
+            <button mat-raised-button color="primary" class="mb-2 w-full">
+              <mat-icon class="mr-2">edit</mat-icon>
+              Modifier la boutique
+            </button>
+            <button mat-stroked-button class="w-full" [routerLink]="['/auth/register/template']">
+              <mat-icon class="mr-2">palette</mat-icon>
+              Changer le thème de la boutique
+            </button>
+            <button mat-stroked-button class="w-full" [routerLink]="shop?.boutique?.id ? ['/shop/boutique', shop?.boutique?.id] : null" [disabled]="!shop?.boutique?.id">
+              <mat-icon class="mr-2">visibility</mat-icon>
+              Voir la boutique
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="!shop?.boutique?.id" class="text-center my-8">
+      <p style="font-size:1.2rem;color:#888;margin-bottom:16px;">Vous n'avez pas encore de boutique.</p>
+      <button mat-raised-button color="primary" [routerLink]="['/shops/create']">Créer ma boutique</button>
+    </div>
+
+    <!-- Dashboard Tabs -->
+    <mat-tab-group class="dashboard-tabs" [(selectedIndex)]="activeTab">
+      
+      <!-- Overview Tab -->
+      <mat-tab label="Aperçu">
+        <div class="py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Sales Stats -->
+          <div class="lg:col-span-2">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Performances de Vente</mat-card-title>
+                <mat-card-subtitle>Ce mois-ci vs le mois dernier</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold text-orange-600">{{ salesData?.currentMonth?.revenue || 0 }}€</div>
+                    <div class="text-sm text-gray-600">Revenu mensuel</div>
+                    <div class="flex items-center justify-center mt-2" [class]="getGrowthColor(salesData?.currentMonth?.growth || 0)">
+                      <mat-icon>{{ getGrowthIcon(salesData?.currentMonth?.growth || 0) }}</mat-icon>
+                      <span>{{ salesData?.currentMonth?.growth || 0 }}%</span>
+                    </div>
+                  </div>
+                  <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600">{{ salesData?.currentMonth?.orders || 0 }}</div>
+                    <div class="text-sm text-gray-600">Commandes</div>
+                  </div>
+                  <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold text-green-600">{{ ((salesData?.currentMonth?.revenue || 0) / (salesData?.currentMonth?.orders || 1)) | number:'1.2-2' }}€</div>
+                    <div class="text-sm text-gray-600">Panier moyen</div>
+                  </div>
+                </div>
+                <!-- Sales Chart Placeholder -->
+                <div class="mt-6 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <mat-icon class="text-gray-400 text-4xl">show_chart</mat-icon>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          
+          <!-- Recent Activity -->
+          <div class="lg:col-span-1">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Activité Récente</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-6">
+                <div class="space-y-4">
+                  <div *ngFor="let activity of recentActivity" class="flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100" [class]="getActivityIconColor(activity.type)">
+                      <mat-icon class="text-white">{{ activity.icon }}</mat-icon>
+                    </div>
+                    <div class="flex-1">
+                      <div class="font-medium text-gray-900">{{ activity.message }}</div>
+                      <div class="text-sm text-gray-600">{{ activity.details }}</div>
+                      <div class="text-xs text-gray-500 mt-1">{{ activity.time }}</div>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Products Tab -->
+      <mat-tab label="Produits">
+        <div class="py-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-900">Mes Produits</h3>
+            <button mat-raised-button color="primary" (click)="showAddProductForm = true">
+              <mat-icon class="mr-2">add</mat-icon>
+              Ajouter un produit
+            </button>
+          </div>
+          
+          <!-- Formulaire d'ajout de produit -->
+          <div *ngIf="showAddProductForm" class="mb-6">
+            <app-add-product-form
+              [boutiqueId]="shop?.boutique?.id"
+              [categories]="categories"
+              (productAdded)="onProductAdded($event)"
+              (cancelled)="showAddProductForm = false">
+            </app-add-product-form>
+          </div>
+          
+          <mat-card>
+            <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div *ngFor="let product of products" class="bg-white rounded-lg shadow-sm border overflow-hidden group">
+                <div class="aspect-square bg-gray-200 flex items-center justify-center relative">
+                  <mat-icon class="text-gray-400 text-4xl">image</mat-icon>
+                  <div class="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button mat-icon-button class="bg-white shadow-md" (click)="editProduct(product.id)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button class="bg-white shadow-md" (click)="deleteProduct(product.id)">
+                      <mat-icon color="warn">delete</mat-icon>
+                    </button>
+                  </div>
+                  <span class="absolute bottom-2 right-2 px-2 py-1 rounded-full text-xs font-medium" 
+                        [class]="getProductStatusColor(product.status)">
+                    {{ getProductStatusText(product.status) }}
+                  </span>
+                </div>
+                <div class="p-4">
+                  <h4 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ product.name }}</h4>
+                  <p class="text-sm text-gray-600 mb-2">{{ product.price }}€ • {{ product.stock }} en stock</p>
+                  <div class="flex items-center text-sm text-gray-500">
+                    <mat-icon class="text-yellow-400 text-sm mr-1">star</mat-icon>
+                    {{ product.rating }} ({{ product.reviewCount }} avis)
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <mat-paginator 
+              [length]="totalItems"
+              [pageSize]="pageSize"
+              [pageSizeOptions]="pageSizeOptions"
+              (page)="onPageChange($event)">
+            </mat-paginator>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Orders Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Commandes
+          <span *ngIf="newOrdersCount > 0" class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-orange-600 rounded-full">
+            {{ newOrdersCount }}
+          </span>
+        </ng-template>
+        <div class="py-6">
+          <mat-card>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">Commandes Récentes</h3>
+              <div class="space-y-4">
+                <div *ngFor="let order of orders" class="border rounded-lg p-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="font-semibold">{{ order.id }} - {{ order.customer }}</h4>
+                      <p class="text-sm text-gray-600">{{ order.date | date:'dd/MM/yyyy' }} • {{ order.total }}€</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getOrderStatusColor(order.status)">
+                        {{ order.statusText }}
+                      </span>
+                      <button mat-icon-button [matMenuTriggerFor]="menu">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu">
+                        <button mat-menu-item (click)="viewOrder(order.id)">Voir</button>
+                        <button mat-menu-item (click)="updateOrderStatus(order.id, 'shipped')">Marquer comme expédiée</button>
+                        <button mat-menu-item (click)="updateOrderStatus(order.id, 'delivered')">Marquer comme livrée</button>
+                      </mat-menu>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Statistiques Tab -->
+      <mat-tab label="Statistiques">
+        <div class="py-6">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Statistiques de Vente</mat-card-title>
+              <mat-card-subtitle>Analyse mensuelle des performances</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="p-6">
+              <table class="min-w-full text-sm text-left">
+                <thead>
+                  <tr>
+                    <th class="px-4 py-2">Mois</th>
+                    <th class="px-4 py-2">Chiffre d'affaires (€)</th>
+                    <th class="px-4 py-2">Commandes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let stat of salesDataByMonth">
+                    <td class="px-4 py-2 font-medium">{{ stat.month }}</td>
+                    <td class="px-4 py-2">{{ stat.revenue }}</td>
+                    <td class="px-4 py-2">{{ stat.orders }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div> 

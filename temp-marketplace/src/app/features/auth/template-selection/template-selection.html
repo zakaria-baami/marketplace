@@ -1,0 +1,40 @@
+<div class="min-h-screen bg-gray-50 py-10 px-4">
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-3xl font-extrabold text-gray-900 text-center mb-8">
+      Choisissez un thème pour votre boutique
+    </h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      <div
+        *ngFor="let template of templates; let i = index"
+        [ngClass]="[
+          'bg-white rounded-2xl shadow-lg hover:shadow-2xl transition p-6 flex flex-col items-center relative',
+          template.id === 14 ? 'border-4 ring-2 scale-105' : ''
+        ]"
+        [ngStyle]="template.id === 14 ? {
+          borderColor: template.config_couleurs?.primary,
+          boxShadow: '0 0 0 4px ' + (template.config_couleurs?.primary || '#2563eb') + '33'
+        } : {}"
+      >
+        <span *ngIf="template.id === 14" class="absolute top-2 right-2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full shadow">Starter</span>
+        <ng-container [ngSwitch]="template.theme_identifier">
+          <app-starter-preview *ngSwitchCase="'starter-theme'" [config]="template.config_couleurs"></app-starter-preview>
+          <app-business-preview *ngSwitchCase="'business-theme'" [config]="template.config_couleurs"></app-business-preview>
+          <app-premium-preview *ngSwitchCase="'premium-theme'" [config]="template.config_couleurs"></app-premium-preview>
+          <app-enterprise-preview *ngSwitchCase="'enterprise-theme'" [config]="template.config_couleurs"></app-enterprise-preview>
+          <img *ngSwitchDefault [src]="template.image_preview" [alt]="template.nom" class="w-full h-40 object-cover rounded-xl mb-4 border border-gray-200" />
+        </ng-container>
+        <h2 class="text-xl font-bold mb-2" [ngStyle]="template.id === 14 ? { color: template.config_couleurs?.primary } : {}">
+          {{ template.nom }}
+        </h2>
+        <p class="text-gray-600 text-sm mb-4 text-center">{{ template.description }}</p>
+        <button
+          (click)="chooseTemplate(template.id)"
+          [ngStyle]="template.id === 14 ? { background: template.config_couleurs?.primary, color: '#fff' } : {}"
+          class="mt-auto font-semibold py-2 px-4 rounded-lg transition"
+        >
+          Choisir ce thème
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

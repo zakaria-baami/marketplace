@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
+      <p class="text-gray-600 mt-2">Retrouvez ici tous les articles que vous avez aimés.</p>
+    </div>
+
+    <div *ngIf="!loading; else loadingState">
+      <div *ngIf="favorites.length > 0; else emptyState" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <a *ngFor="let product of favorites" [routerLink]="['/products', product.id]">
+          <app-product-card [product]="product" (favoriteToggled)="removeFromFavorites(product.id)"></app-product-card>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<ng-template #loadingState>
+  <div class="flex items-center justify-center h-96">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+</ng-template>
+
+<!-- Empty State -->
+<ng-template #emptyState>
+  <div class="text-center py-20 bg-white rounded-lg shadow-sm">
+    <mat-icon class="text-gray-400 text-6xl mb-4">favorite_border</mat-icon>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">Votre liste de favoris est vide</h3>
+    <p class="text-gray-600 mb-6">Cliquez sur le cœur pour ajouter des produits à vos favoris.</p>
+    <button mat-raised-button color="primary" routerLink="/products">
+      <mat-icon class="mr-2">shopping_bag</mat-icon>
+      Découvrir nos produits
+    </button>
+  </div>
+</ng-template> 

@@ -1,0 +1,129 @@
+<app-home-header></app-home-header>
+<div class="min-h-screen bg-gray-50">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error && !isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center">
+      <mat-icon class="text-red-500 text-6xl mb-4">error</mat-icon>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Erreur de chargement</h2>
+      <p class="text-gray-600 mb-6">{{ error }}</p>
+      <button mat-raised-button color="primary" (click)="loadData()">
+        Réessayer
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error">
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-orange-400 to-pink-400 py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+          Découvrez des créations uniques
+        </h1>
+        <p class="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto">
+          Explorez notre marketplace de créateurs passionnés et trouvez des produits authentiques et originaux
+        </p>
+        <button mat-raised-button class="bg-white text-orange-500 hover:bg-gray-100 px-8 py-3 text-lg font-semibold rounded-full">
+          Explorer maintenant
+        </button>
+      </div>
+      
+      <!-- Floating Cards Animation -->
+      <div class="absolute top-10 left-10 transform rotate-12 hidden lg:block">
+        <div class="bg-white rounded-lg shadow-lg p-4 w-32">
+          <div class="h-20 bg-gray-200 rounded mb-2"></div>
+          <div class="h-3 bg-gray-300 rounded mb-1"></div>
+          <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+      
+      <div class="absolute top-32 right-20 transform -rotate-6 hidden lg:block">
+        <div class="bg-white rounded-lg shadow-lg p-4 w-32">
+          <div class="h-20 bg-gray-200 rounded mb-2"></div>
+          <div class="h-3 bg-gray-300 rounded mb-1"></div>
+          <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16" *ngIf="categories.length > 0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+          Parcourir par catégorie
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          <div *ngFor="let category of categories" 
+               class="group cursor-pointer text-center transform hover:scale-105 transition-transform duration-200"
+               [routerLink]="['/categories', category.id]">
+            <div class="w-20 h-20 mx-auto mb-3 rounded-full flex items-center justify-center group-hover:shadow-lg transition-shadow"
+                 [style.background]="'linear-gradient(135deg, ' + getCategoryColor(category) + '20, ' + getCategoryColor(category) + '40)'">
+              <mat-icon class="text-2xl" [style.color]="getCategoryColor(category)">
+                {{ getCategoryIcon(category.nom) }}
+              </mat-icon>
+            </div>
+            <h3 class="text-sm font-medium text-gray-700 group-hover:text-orange-600 transition-colors">
+              {{ category.nom }}
+            </h3>
+            <p class="text-xs text-gray-500" *ngIf="category.nombre_produits">
+              {{ category.nombre_produits }} produit{{ category.nombre_produits > 1 ? 's' : '' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="py-16 bg-white" *ngIf="featuredProducts.length > 0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            Produits en vedette
+          </h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Découvrez une sélection de nos créations les plus populaires, choisies avec soin par notre équipe
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <app-product-card 
+            *ngFor="let product of featuredProducts"
+            [product]="product">
+          </app-product-card>
+        </div>
+        
+        <div class="text-center mt-12">
+          <button mat-stroked-button class="px-8 py-3 text-orange-600 border-orange-600 hover:bg-orange-50"
+                  [routerLink]="['/products']">
+            Voir tous les produits
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-16 bg-orange-500">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          Ne manquez rien de nos nouveautés
+        </h2>
+        <p class="text-xl text-orange-100 mb-8">
+          Inscrivez-vous à notre newsletter et recevez les dernières créations directement dans votre boîte mail
+        </p>
+        <div class="flex flex-col sm:flex-row max-w-md mx-auto gap-4">
+          <input type="email" 
+                 placeholder="Votre adresse email"
+                 class="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-orange-300 focus:outline-none">
+          <button mat-raised-button class="bg-white text-orange-500 hover:bg-gray-100 px-6 py-3 font-semibold rounded-lg">
+            S'inscrire
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="template-galleria bg-white font-sans">
+  <!-- Banner dynamique -->
+  <ng-container *ngIf="shop?.banner; else defaultBanner">
+    <div class="header-banner">
+      <img [src]="shop.banner" alt="Bannière" style="width:100%;height:100%;object-fit:cover;border-radius:0 0 32px 32px;" />
+    </div>
+  </ng-container>
+  <ng-template #defaultBanner>
+    <div class="header-banner" style="background:#e0e0e0;"></div>
+  </ng-template>
+
+  <!-- Header moderne -->
+  <div class="header">
+    <div class="avatar">
+      <ng-container *ngIf="shop?.logo; else avatarLetter">
+        <img [src]="shop.logo" alt="Logo" style="width:100%;height:100%;border-radius:50%" />
+      </ng-container>
+      <ng-template #avatarLetter>{{ shop?.name?.charAt(0) }}</ng-template>
+    </div>
+    <div>
+      <div class="shop-title">{{ shop?.name }}</div>
+      <div class="shop-actions">
+        <button mat-stroked-button>Suivre</button>
+        <button mat-flat-button color="primary">Contacter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- About Section -->
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Notre Histoire</h2>
+      <p class="text-gray-700 leading-relaxed">{{ shop.description }}</p>
+    </section>
+
+    <!-- Category Links -->
+    <nav class="mb-12">
+      <ul class="flex items-center justify-center space-x-4 md:space-x-8">
+        <li *ngFor="let category of shop.categories">
+          <a href="#" class="block font-semibold text-gray-600 hover:text-orange-600 transition-colors pb-2 border-b-2 border-transparent hover:border-orange-500">
+            {{ category }}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Liste produits -->
+    <div class="products-list" *ngIf="products && products.length > 0">
+      <div class="product-card" *ngFor="let product of products">
+        <div style="width:100%;height:140px;background:#f6d365;border-radius:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:#666;">
+          <ng-container *ngIf="product.image; else noImage">
+            <img [src]="product.image" [alt]="product.nom" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+          </ng-container>
+          <ng-template #noImage>
+            <mat-icon style="font-size:48px;color:#ccc;">image</mat-icon>
+          </ng-template>
+        </div>
+        <div style="font-weight:600;font-size:1.1rem;">{{ product.nom }}</div>
+        <div style="color:#ff5e62;font-weight:bold;">{{ product.prix | currency:'EUR' }}</div>
+        <div style="font-size:0.95rem;color:#888;margin:8px 0;">{{ product.description }}</div>
+        <button mat-stroked-button color="primary" style="margin-top:8px;">Voir</button>
+      </div>
+    </div>
+    
+    <!-- Message si aucun produit -->
+    <div *ngIf="!products || products.length === 0" style="text-align:center;padding:40px;">
+      <mat-icon style="font-size:48px;color:#ccc;margin-bottom:20px;">inventory_2</mat-icon>
+      <h3 style="color:#666;margin-bottom:10px;">Aucun produit disponible</h3>
+      <p style="color:#999;">Cette boutique n'a pas encore de produits.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 mt-16 py-8">
+    <div class="text-center text-sm text-gray-500">
+      <p>&copy; 2024 {{ shop.name }}. Tous droits réservés.</p>
+    </div>
+  </footer>
+</div> 

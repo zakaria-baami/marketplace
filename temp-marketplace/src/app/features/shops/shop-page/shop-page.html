@@ -1,0 +1,128 @@
+<!-- Banner d'aperçu vendeur -->
+<div style="background:#1976d2;color:#fff;padding:10px 0;text-align:center;font-weight:600;letter-spacing:1px;">
+  Aperçu vendeur : vous voyez votre boutique telle qu'elle apparaît aux clients
+</div>
+
+<!-- Section gestion vendeur toujours visible pour test -->
+<div>
+  <div style="background:#f5f5f5;padding:20px;margin-top:20px;border-radius:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="margin:0;color:#333;">Gestion des produits</h3>
+      <button mat-raised-button color="primary" 
+              (click)="showAddProductForm = !showAddProductForm">
+        <mat-icon>add</mat-icon>
+        {{ showAddProductForm ? 'Annuler' : 'Ajouter un produit' }}
+      </button>
+    </div>
+    <app-add-product-form 
+      *ngIf="showAddProductForm"
+      [boutiqueId]="shop?.id"
+      [categories]="categories"
+      (productAdded)="onProductAdded($event)"
+      (cancelled)="showAddProductForm = false">
+    </app-add-product-form>
+    
+    <!-- Filtres et recherche -->
+    <div *ngIf="products.length > 0" style="display:flex;gap:15px;margin-bottom:20px;align-items:center;flex-wrap:wrap;">
+      <mat-form-field style="min-width:200px;">
+        <mat-label>Rechercher un produit</mat-label>
+        <input matInput [(ngModel)]="searchQuery" (input)="filterProducts()" placeholder="Nom ou description..." />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      
+      <mat-form-field style="min-width:150px;">
+        <mat-label>Trier par</mat-label>
+        <mat-select [(ngModel)]="sortBy" (selectionChange)="sortProducts()">
+          <mat-option value="popularity">Popularité</mat-option>
+          <mat-option value="price_asc">Prix croissant</mat-option>
+          <mat-option value="price_desc">Prix décroissant</mat-option>
+          <mat-option value="name_asc">Nom A-Z</mat-option>
+          <mat-option value="name_desc">Nom Z-A</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    
+    <!-- Liste des produits -->
+    <div *ngIf="products.length > 0" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:20px;">
+      <mat-card *ngFor="let product of paginatedProducts" style="height:fit-content;">
+        <mat-card-header>
+          <mat-card-title>{{ product.nom }}</mat-card-title>
+          <mat-card-subtitle>{{ product.categorie?.nom || 'Sans catégorie' }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <img mat-card-image [src]="getProductImage(product)" [alt]="product.nom"
+             style="height:200px;object-fit:cover;">
+        
+        <mat-card-content>
+          <p>{{ product.description || 'Aucune description' }}</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+            <span style="font-size:1.2em;font-weight:bold;color:#1976d2;">
+              {{ product.prix }}€
+            </span>
+            <span style="color:#666;">
+              Stock: {{ product.stock }}
+            </span>
+          </div>
+          <div style="margin-top:10px;">
+            <span [style.color]="product.actif ? '#4caf50' : '#f44336'" style="font-weight:500;">
+              {{ product.actif ? '● Actif' : '● Inactif' }}
+            </span>
+          </div>
+        </mat-card-content>
+        
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="editProduct(product)">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+          <button mat-button color="warn" (click)="deleteProduct(product)">
+            <mat-icon>delete</mat-icon>
+            Supprimer
+          </button>
+          <button mat-button color="accent" (click)="toggleProductStatus(product)">
+            <mat-icon>{{ product.actif ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ product.actif ? 'Désactiver' : 'Activer' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    
+    <!-- Message si aucun produit -->
+    <div *ngIf="products.length === 0" style="text-align:center;padding:40px;background:#fff;border-radius:8px;border:2px dashed #ccc;">
+      <mat-icon style="font-size:48px;color:#ccc;margin-bottom:20px;">inventory_2</mat-icon>
+      <h3 style="color:#666;margin-bottom:10px;">Aucun produit dans votre boutique</h3>
+      <p style="color:#999;margin-bottom:20px;">Commencez par ajouter votre premier produit pour attirer des clients !</p>
+      <button mat-raised-button color="primary" (click)="showAddProductForm = true">
+        <mat-icon>add</mat-icon>
+        Ajouter votre premier produit
+      </button>
+    </div>
+    
+    <!-- Pagination -->
+    <mat-paginator 
+      *ngIf="products.length > 0"
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage"
+      (page)="onPageChange($event)"
+      style="margin-top:20px;">
+    </mat-paginator>
+  </div>
+</div>
+
+<!-- Contenu principal de la boutique -->
+<ng-container *ngIf="!loading">
+  <!-- Affichage selon le template -->
+  <app-template-modern *ngIf="shop?.template === 'Artisan'" [shop]="shop" [products]="paginatedProducts"></app-template-modern>
+  <app-template-classic *ngIf="shop?.template === 'Galleria'" [shop]="shop" [products]="paginatedProducts"></app-template-classic>
+  <app-template-minimalist *ngIf="shop?.template === 'Boutique'" [shop]="shop" [products]="paginatedProducts"></app-template-minimalist>
+  <app-template-bold *ngIf="shop?.template === 'Vogue'" [shop]="shop" [products]="paginatedProducts"></app-template-bold>
+</ng-container>
+
+<!-- État de chargement -->
+<ng-container *ngIf="loading">
+  <div style="display:flex;justify-content:center;align-items:center;height:50vh;">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+</ng-container> 

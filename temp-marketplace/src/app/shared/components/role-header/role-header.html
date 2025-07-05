@@ -1,0 +1,58 @@
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <app-logo></app-logo>
+      </div>
+      <!-- Search Bar -->
+      <form (ngSubmit)="onSearch()" class="flex-1 flex justify-center mx-4">
+        <div class="flex items-center w-full max-w-lg border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
+          <span class="pl-3 pr-2 text-gray-400">
+            <mat-icon>search</mat-icon>
+          </span>
+          <input matInput [(ngModel)]="searchQuery" name="search" placeholder="Cherchez un produit, une marque ou une catégorie" class="flex-1 py-2 px-2 outline-none border-0 bg-transparent" />
+          <button type="submit" class="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-colors">
+            Rechercher
+          </button>
+        </div>
+      </form>
+      <!-- Actions à droite -->
+      <div class="flex items-center space-x-4">
+        <button mat-icon-button [matMenuTriggerFor]="userMenu">
+          <mat-icon>person</mat-icon>
+        </button>
+        <span class="hidden md:inline text-gray-700 font-medium">Bonjour, {{ username }}</span>
+        <button mat-icon-button>
+          <mat-icon>help_outline</mat-icon>
+        </button>
+        <span class="hidden md:inline text-gray-700 font-medium">Aide</span>
+        <button mat-icon-button (click)="onCart()" class="relative">
+          <mat-icon>shopping_cart</mat-icon>
+          <span *ngIf="cartItemsCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+            {{ cartItemsCount }}
+          </span>
+        </button>
+        <span class="hidden md:inline text-gray-700 font-medium">Panier</span>
+      </div>
+    </div>
+  </div>
+  <!-- Menu profil -->
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="onProfile()">
+      <mat-icon>person</mat-icon>
+      <span>Mon Profil</span>
+    </button>
+    <button mat-menu-item (click)="onCart()">
+      <mat-icon>shopping_cart</mat-icon>
+      <span>Mon Panier</span>
+      <span *ngIf="cartItemsCount > 0" class="ml-auto bg-orange-500 text-white text-xs rounded-full px-2 py-1">
+        {{ cartItemsCount }}
+      </span>
+    </button>
+    <button mat-menu-item (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+      <span>Déconnexion</span>
+    </button>
+  </mat-menu>
+</header> 

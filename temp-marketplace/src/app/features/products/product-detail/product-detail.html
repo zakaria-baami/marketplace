@@ -1,0 +1,116 @@
+<header class="custom-header">
+  <div class="header-left">
+    <img src="/assets/images/logo.svg" alt="Logo" class="logo" />
+    <span class="brand">
+      <span class="brand-orange">MOGH</span><span class="brand-pink">RABI</span>
+      <br><span class="brand-sub">Marketplace</span>
+    </span>
+  </div>
+  <form class="header-search" (ngSubmit)="onSearch()">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input type="text" [(ngModel)]="searchQuery" name="search" placeholder="Cherchez un produit, une marque ou une catégorie" />
+    <button type="submit" class="search-btn">Rechercher</button>
+  </form>
+  <div class="header-right">
+    <div class="user-menu-wrapper" (click)="toggleUserMenu()" tabindex="0">
+      <button class="user-btn" type="button">
+        <mat-icon>account_circle</mat-icon>
+        <span>Bonjour, <b>{{ userName }}</b></span>
+        <mat-icon class="arrow">expand_more</mat-icon>
+      </button>
+      <div class="user-menu" *ngIf="userMenuOpen">
+        <a (click)="goToProfile()">Profil</a>
+        <a (click)="logout()">Déconnexion</a>
+      </div>
+    </div>
+    <button class="help-btn">
+      <mat-icon>help_outline</mat-icon>
+      <span>Aide</span>
+      <mat-icon class="arrow">expand_more</mat-icon>
+    </button>
+    <span class="cart" routerLink="/cart" tabindex="0" aria-label="Voir le panier">
+      <mat-icon>shopping_cart</mat-icon>
+      Panier
+      <span class="cart-badge">{{ cartCount }}</span>
+    </span>
+  </div>
+</header>
+
+<div class="container product-detail-layout">
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="text-center py-8">
+    <div class="text-orange text-xl mb-4">{{ error }}</div>
+    <button class="btn-main" routerLink="/">Retour à l'accueil</button>
+  </div>
+
+  <!-- Bouton Retour aux produits en haut de la fiche produit -->
+  <div *ngIf="product && !loading" class="mb-6">
+    <button class="btn-outline" routerLink="/products">
+      <mat-icon class="mr-2">shopping_bag</mat-icon>
+      Retour aux produits
+    </button>
+  </div>
+
+  <!-- Product details -->
+  <div *ngIf="product && !loading" class="product-main">
+    <div class="product-image-block">
+      <div class="product-image-card">
+        <img [src]="getProductImage()" [alt]="product.nom" class="product-image" />
+      </div>
+    </div>
+    <div class="product-info-block">
+      <h1 class="product-title">{{ product.nom }}</h1>
+      <div class="product-description-card">
+        <h2>Description du produit</h2>
+        <div class="desc-content">{{ product.description }}</div>
+      </div>
+      <div class="product-meta">
+        <div class="meta-row">
+          <span class="meta-label">Prix :</span>
+          <span class="meta-value price">{{ product.prix | currency:'EUR':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Stock :</span>
+          <span class="meta-value" [ngClass]="{'stock-ok': product.stock > 0, 'stock-out': product.stock === 0}">{{ product.stock > 0 ? product.stock : 'Rupture de stock' }}</span>
+        </div>
+        <div class="meta-row" *ngIf="product.categorie">
+          <span class="meta-label">Catégorie :</span>
+          <span class="meta-value">{{ product.categorie.nom }}</span>
+        </div>
+        <div class="meta-row" *ngIf="product.boutique">
+          <span class="meta-label">Boutique :</span>
+          <span class="meta-value">{{ product.boutique.nom }}</span>
+        </div>
+      </div>
+      <div class="product-actions">
+        <button class="btn-main" (click)="addToCartOnly()" [disabled]="!product || product.stock === 0">Ajouter au panier</button>
+        <button class="btn-outline" (click)="buyNow()" [disabled]="!product || product.stock === 0">Acheter maintenant</button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!product && !loading && !error" class="text-center py-8">
+    <div class="text-orange text-xl mb-4">Aucun produit trouvé pour cet identifiant.</div>
+    <button class="btn-main" routerLink="/">Retour à l'accueil</button>
+  </div>
+
+  <!-- Section produits similaires -->
+  <div class="similar-section">
+    <div class="similar-title">Les clients ayant consulté cet article ont également regardé</div>
+    <div class="similar-bar"></div>
+    <div class="similar-carousel">
+      <a class="similar-product-card" *ngFor="let p of similarProducts" [routerLink]="['/products', p.id]">
+        <img [src]="p.image" [alt]="p.nom" class="similar-product-img" />
+        <div class="similar-product-name">{{ p.nom }}</div>
+        <div class="similar-product-price">{{ p.prix | number:'1.2-2' }} Dhs
+          <span *ngIf="p.oldPrix" class="similar-product-oldprice">{{ p.oldPrix | number:'1.2-2' }} Dhs</span>
+          <span *ngIf="p.badge" class="similar-product-badge">{{ p.badge }}</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

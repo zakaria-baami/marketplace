@@ -1,0 +1,54 @@
+<div class="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+  <!-- Sidebar: Shop Info Form -->
+  <aside class="w-full md:w-1/3 bg-white p-8 shadow-lg flex flex-col gap-8">
+    <h2 class="text-2xl font-bold mb-4 text-orange-600">Personnaliser ma boutique</h2>
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-6">
+      <mat-form-field appearance="outline">
+        <mat-label>Nom de la boutique</mat-label>
+        <input matInput formControlName="name">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Slogan</mat-label>
+        <input matInput formControlName="tagline">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+      <div>
+        <label class="block font-medium mb-1">Logo</label>
+        <input type="file" accept="image/*" (change)="onLogoChange($event)">
+        <div *ngIf="logoPreview" class="mt-2">
+          <img [src]="logoPreview" alt="Logo preview" class="w-16 h-16 rounded-full object-cover border">
+        </div>
+      </div>
+      <div>
+        <label class="block font-medium mb-1">Bannière</label>
+        <input type="file" accept="image/*" (change)="onBannerChange($event)">
+        <div *ngIf="bannerPreview" class="mt-2">
+          <img [src]="bannerPreview" alt="Banner preview" class="w-full h-24 object-cover rounded border">
+        </div>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Template</mat-label>
+        <mat-select formControlName="template" (selectionChange)="onTemplateChange($event.value)">
+          <mat-option *ngFor="let t of templates" [value]="t.id">{{ t.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" class="w-full bg-orange-500 hover:bg-orange-600 text-white">Enregistrer</button>
+    </form>
+  </aside>
+
+  <!-- Main: Live Preview -->
+  <main class="flex-1 p-8 flex flex-col items-center bg-gray-50">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Aperçu en direct</h2>
+    <div class="w-full max-w-5xl min-h-[600px] bg-white rounded-xl shadow-xl overflow-hidden">
+      <ng-container [ngSwitch]="selectedTemplate">
+        <app-template-classic *ngSwitchCase="'classic'" [shop]="form.value" [products]="mockProducts"></app-template-classic>
+        <app-template-modern *ngSwitchCase="'modern'" [shop]="form.value" [products]="mockProducts"></app-template-modern>
+        <app-template-minimalist *ngSwitchCase="'minimalist'" [shop]="form.value" [products]="mockProducts"></app-template-minimalist>
+        <app-template-bold *ngSwitchCase="'bold'" [shop]="form.value" [products]="mockProducts"></app-template-bold>
+      </ng-container>
+    </div>
+  </main>
+</div> 

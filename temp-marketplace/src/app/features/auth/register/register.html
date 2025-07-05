@@ -1,0 +1,68 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
+    <div class="flex flex-col items-center mb-8">
+      <app-logo></app-logo>
+      <h1 class="text-2xl font-bold text-orange-600 mb-1">Créer un compte</h1>
+      <p class="text-gray-500">Inscrivez-vous pour acheter sur Marketplace</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" autocomplete="off">
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-1" for="name">Nom</label>
+        <input id="name" type="text" formControlName="name" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre nom complet">
+        <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="text-xs text-red-500 mt-1">
+          Le nom est requis (2 caractères minimum).
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-1" for="email">Email</label>
+        <input id="email" type="email" formControlName="email" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre email">
+        <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-xs text-red-500 mt-1">
+          Veuillez entrer une adresse email valide.
+        </div>
+      </div>
+      <div class="mb-4 relative">
+        <label class="block text-gray-700 font-medium mb-1" for="password">Mot de passe</label>
+        <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10" placeholder="Mot de passe">
+        <button type="button" (click)="showPassword = !showPassword" class="absolute right-3 top-9 text-gray-400 hover:text-orange-500 focus:outline-none">
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-xs text-red-500 mt-1">
+          Au moins 6 caractères.
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-1" for="confirmPassword">Confirmer le mot de passe</label>
+        <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword" formControlName="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Confirmez le mot de passe">
+        <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="text-xs text-red-500 mt-1">
+          Confirmation requise.
+        </div>
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700 font-medium mb-1" for="phone">Téléphone (optionnel)</label>
+        <input id="phone" type="tel" formControlName="phone" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Votre numéro de téléphone">
+      </div>
+      <button mat-raised-button color="primary" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded transition-all" [disabled]="registerForm.invalid || loading">
+        <span *ngIf="!loading">Créer mon compte</span>
+        <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+      </button>
+    </form>
+    
+    <!-- Seller Registration Link -->
+    <div class="mt-6 text-center">
+      <div class="border-t border-gray-200 pt-4">
+        <p class="text-gray-600 mb-3">Vous souhaitez vendre sur Marketplace ?</p>
+        <button mat-stroked-button color="accent" [routerLink]="['/auth/register/vendeur']" class="w-full border-orange-500 text-orange-600 hover:bg-orange-50 font-medium py-2 rounded transition-all">
+          <mat-icon class="mr-2">store</mat-icon>
+          Devenir Vendeur
+        </button>
+      </div>
+    </div>
+
+<div class="mt-6 text-center">
+  <button mat-button color="accent" [routerLink]="['/auth/login']" class="text-orange-600 hover:underline">
+    Déjà inscrit ? Se connecter
+  </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+<div class="block bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden group">
+  <a [routerLink]="['/products', product.id]" class="block">
+    <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden relative">
+      <img [src]="getProductImage()" 
+           [alt]="product.nom" 
+           class="object-cover w-full h-full group-hover:scale-105 transition-transform" />
+      
+      <!-- Stock Status Badge -->
+      <div class="absolute top-2 right-2">
+        <span class="px-2 py-1 text-xs font-medium rounded-full"
+              [class]="getStockStatusColor() + ' bg-white bg-opacity-90'">
+          {{ getStockStatus() }}
+        </span>
+      </div>
+      
+      <!-- Out of Stock Overlay -->
+      <div *ngIf="product.est_en_rupture" 
+           class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <span class="text-white font-semibold text-lg">Rupture de stock</span>
+      </div>
+    </div>
+    
+    <div class="p-4">
+      <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">{{ product.nom }}</h3>
+      
+      <!-- Boutique Info -->
+      <div class="text-sm text-gray-500 mb-2" *ngIf="product.boutique">
+        Par {{ product.boutique.nom }}
+        <span *ngIf="product.boutique.vendeur?.utilisateur?.nom" class="text-xs text-gray-400">
+          • {{ product.boutique.vendeur?.utilisateur?.nom }}
+        </span>
+      </div>
+      
+      <!-- Category Info -->
+      <div class="text-xs text-gray-400 mb-2" *ngIf="product.categorie">
+        {{ product.categorie.nom }}
+      </div>
+      
+      <div class="flex items-center justify-between">
+        <span class="text-lg font-bold text-orange-600">{{ product.prix | currency:'EUR':'symbol':'1.2-2' }}</span>
+        
+        <!-- Stock Info -->
+        <div class="text-xs text-gray-500" *ngIf="!product.est_en_rupture">
+          {{ product.stock }} en stock
+        </div>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Add to Cart Button -->
+  <div class="px-4 pb-4">
+    <div *ngIf="!isInCart && product.disponible && !product.est_en_rupture" class="w-full">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        class="w-full"
+        (click)="addToCart($event)">
+        <mat-icon class="mr-2">add_shopping_cart</mat-icon>
+        Ajouter au panier
+      </button>
+    </div>
+    
+    <div *ngIf="isInCart" class="flex items-center space-x-2">
+      <div class="flex-1 text-center">
+        <span class="text-sm text-green-600 font-medium">
+          <mat-icon class="text-sm mr-1">check_circle</mat-icon>
+          Dans le panier ({{ cartQuantity }})
+        </span>
+      </div>
+      <button 
+        mat-icon-button 
+        color="warn" 
+        (click)="removeFromCart($event)"
+        matTooltip="Retirer du panier">
+        <mat-icon>remove_shopping_cart</mat-icon>
+      </button>
+    </div>
+    
+    <div *ngIf="product.est_en_rupture" class="w-full">
+      <button 
+        mat-stroked-button 
+        disabled
+        class="w-full text-gray-500">
+        <mat-icon class="mr-2">block</mat-icon>
+        Indisponible
+      </button>
+    </div>
+  </div>
+</div>

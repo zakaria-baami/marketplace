@@ -1,0 +1,47 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search Header -->
+    <div class="mb-8 p-6 bg-white rounded-lg shadow-sm">
+      <h1 class="text-3xl font-bold text-gray-900">
+        Résultats pour "<span class="text-orange-600">{{ searchQuery }}</span>"
+      </h1>
+      <p class="text-gray-600 mt-2">{{ totalItems }} articles trouvés</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Filters Sidebar -->
+      <aside class="lg:col-span-1">
+        <div class="p-6 bg-white rounded-lg shadow-sm sticky top-8">
+          <h2 class="text-xl font-semibold mb-4">Filtres</h2>
+          <!-- Filter sections here -->
+        </div>
+      </aside>
+
+      <!-- Products Grid -->
+      <main class="lg:col-span-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <a *ngFor="let product of getPaginatedProducts()" [routerLink]="['/products', product.id]">
+            <app-product-card [product]="product"></app-product-card>
+          </a>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalItems > pageSize" class="mt-8 flex justify-center">
+          <mat-paginator 
+            [length]="totalItems"
+            [pageSize]="pageSize"
+            [pageIndex]="currentPage"
+            (page)="onPageChange($event)">
+          </mat-paginator>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="totalItems === 0" class="text-center py-20">
+          <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucun résultat</h3>
+          <p class="text-gray-600">Essayez une autre recherche.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+</div> 

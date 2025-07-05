@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow-sm p-8 mb-8 text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Découvrez nos boutiques</h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Explorez un univers de créativité et trouvez des articles uniques faits par des vendeurs passionnés.
+      </p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-8 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <mat-form-field appearance="outline" class="w-72">
+          <mat-label>Rechercher une boutique</mat-label>
+          <input matInput [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-sm font-medium text-gray-700">Trier par :</span>
+        <mat-form-field appearance="outline" class="w-48">
+          <mat-select [(ngModel)]="sortBy" (selectionChange)="applyFilters()">
+            <mat-option value="rating">Meilleures notes</mat-option>
+            <mat-option value="sales">Plus de ventes</mat-option>
+            <mat-option value="newest">Plus récentes</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Shops Grid -->
+    <div *ngIf="!loading; else loadingState">
+      <div *ngIf="filteredShops.length > 0; else emptyState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <a *ngFor="let shop of getPaginatedShops()" [routerLink]="['/shops', shop.slug]" class="block group">
+          <mat-card class="shop-card group cursor-pointer hover:shadow-xl transition-all">
+            <!-- Cover Image -->
+            <div class="h-40 bg-gray-200 flex items-center justify-center overflow-hidden">
+              <mat-icon class="text-gray-400 text-6xl">storefront</mat-icon>
+            </div>
+            <!-- Shop Info -->
+            <div class="p-6 relative">
+              <!-- Avatar -->
+              <div class="absolute -top-10 left-6 w-20 h-20 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full flex items-center justify-center border-4 border-white shadow-md">
+                <span class="text-white text-2xl font-bold">{{ shop.avatar }}</span>
+                <div *ngIf="shop.isVerified" class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                  <mat-icon class="text-white text-sm">verified</mat-icon>
+                </div>
+              </div>
+              <div class="pt-10">
+                <h3 class="text-xl font-bold text-gray-900 mb-1 truncate">{{ shop.name }}</h3>
+                <p class="text-sm text-gray-600 mb-3 truncate">{{ shop.tagline }}</p>
+                <!-- Stats -->
+                <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div class="flex items-center">
+                    <mat-icon class="text-yellow-400 text-lg mr-1">star</mat-icon>
+                    <span class="font-medium">{{ shop.rating }}</span>
+                    <span class="mx-1">•</span>
+                    <span>{{ shop.totalSales }} ventes</span>
+                  </div>
+                  <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-semibold">
+                    {{ shop.grade }}
+                  </span>
+                </div>
+                <!-- Product Previews -->
+                <div class="flex space-x-2 mb-4">
+                  <div *ngFor="let product of shop.products" class="w-1/3 aspect-square bg-gray-200 rounded-md flex items-center justify-center">
+                    <mat-icon class="text-gray-400">image</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </a>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="filteredShops.length > pageSize" class="mt-8 flex justify-center">
+        <mat-paginator 
+          [length]="totalItems"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [pageIndex]="currentPage"
+          (page)="onPageChange($event)">
+        </mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<ng-template #loadingState>
+  <div class="text-center py-20">
+    <mat-spinner diameter="50" class="mx-auto"></mat-spinner>
+    <p class="mt-4 text-gray-600">Chargement des boutiques...</p>
+  </div>
+</ng-template>
+
+<!-- Empty State -->
+<ng-template #emptyState>
+  <div class="text-center py-20">
+    <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune boutique trouvée</h3>
+    <p class="text-gray-600">Essayez d'ajuster vos filtres de recherche.</p>
+  </div>
+</ng-template> 

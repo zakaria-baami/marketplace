@@ -1,0 +1,13 @@
+/* Styles de base pour le formulaire de création de boutique */
+input, textarea {
+  outline: none;
+  border: 1px solid #d1d5db;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus {
+  border-color: #2563eb;
+}
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 
